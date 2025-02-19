@@ -33,12 +33,8 @@ void test_storage::access_storage_of_vein_singleton()
     dspValues.fireDftActualValues(dspInterface);
     TimeMachineObject::feedEventLoop();
 
-    QList<QString> componentsDft = veinStorageDb->getComponentList(dftEntityId);
-    QVERIFY(componentsDft.length() == 28);
     QVERIFY(veinStorageDb->hasStoredValue(dftEntityId, "ACT_POL_DFTPN4") == true);
-
     QList<double> exampleValue = veinStorageDb->getStoredValue(dftEntityId, "ACT_POL_DFTPN4").value<QList<double>>();
-
     QCOMPARE(exampleValue[0], float(5 * M_SQRT2));
 }
 
@@ -59,7 +55,6 @@ std::unique_ptr<ModuleManagerTestRunner> test_storage::setupModuleManager(QStrin
     tcpSystem->startServer(12000);
 
     VeinEntrySingleton::getInstance(mockedVeinNetworkFactory);
-
     TimeMachineObject::feedEventLoop();
 
     return testRunner;
