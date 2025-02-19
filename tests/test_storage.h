@@ -10,10 +10,12 @@ class test_storage : public QObject
 private slots:
     void initTestCase();
     void access_storage_of_vein_singleton();
+    void get_multiple_values();
 
 private:
     std::unique_ptr<ModuleManagerTestRunner> setupModuleManager(QString config);
 
+    std::unique_ptr<ModuleManagerTestRunner> m_testRunner;
 signals:
 };
 

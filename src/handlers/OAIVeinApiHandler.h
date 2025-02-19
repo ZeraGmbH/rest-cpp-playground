@@ -15,8 +15,10 @@
 #include <QObject>
 
 #include "OAIProblemDetails.h"
+#include "OAIVeinGetRequest.h"
 #include "OAIVeinGetResponse.h"
 #include "OAIVeinSet.h"
+#include <QList>
 #include <QString>
 
 namespace OpenAPI {
@@ -28,13 +30,13 @@ class OAIVeinApiHandler : public QObject
 public:
     OAIVeinApiHandler();
     virtual ~OAIVeinApiHandler();
-
+    QList<OAIVeinGetResponse> generateBulkAnswer(QList<OAIVeinGetRequest> oai_vein_get_request);
+    QString variantToJsonString(QVariant input);
 
 public slots:
     virtual void apiV1VeinGet(qint32 entity_id, QString component_name);
+    virtual void apiV1VeinPost(QList<OAIVeinGetRequest> oai_vein_get_request);
     virtual void apiV1VeinPut(OAIVeinSet oai_vein_set);
-
-
 };
 
 }

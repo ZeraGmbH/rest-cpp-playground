@@ -1,6 +1,7 @@
 #ifndef VEINENTRYSINGLETON_H
 #define VEINENTRYSINGLETON_H
 
+#include "commondefines.h"
 #include <QObject>
 #include <ve_eventhandler.h>
 #include <vn_networksystem.h>
@@ -36,7 +37,7 @@ signals:
 
 private:
     VeinEntrySingleton(VeinTcp::AbstractTcpNetworkFactoryPtr tcpNetworkFactory);
-    TaskTemplatePtr createSubscriptionTask(int entityId, const QString& entityName);
+    TaskTemplatePtr createSubscriptionTask(veinRestEntityIds entityId, const QString& entityName);
 
     VeinEvent::EventHandler m_eventHandler;
     VeinNet::NetworkSystem m_netSystem;

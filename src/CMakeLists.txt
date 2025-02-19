@@ -12,12 +12,6 @@ file(GLOB HEADERS
     ${CMAKE_CURRENT_SOURCE_DIR}/*.h
 )
 
-# for visibility in qt creator
-add_custom_target(
-    custom-sources
-    SOURCES ${SRCS} ${HEADERS}
-)
-
 set(GENERATED_SERVER_SRC_DIR "${CMAKE_BINARY_DIR}/server/src")
 
 file(GLOB GENERATED_SRCS
@@ -40,14 +34,6 @@ endforeach()
 # add every leftovers custom sources, which not replace generated ones
 list(APPEND GENERATED_SRCS ${SRCS})
 
-include_directories(
-    ${Qt5Core_INCLUDE_DIRS}
-    ${Qt5Network_INCLUDE_DIRS}
-    ${GENERATED_SERVER_SRC_DIR}/models
-    ${GENERATED_SERVER_SRC_DIR}/handlers
-    ${GENERATED_SERVER_SRC_DIR}/requests
-)
-
 add_library(${PROJECT_NAME}-lib STATIC ${GENERATED_SRCS} ${HEADERS})
 
 target_link_libraries(${PROJECT_NAME}-lib
@@ -66,9 +52,11 @@ target_link_libraries(${PROJECT_NAME}-lib
 
 target_include_directories(${PROJECT_NAME}-lib
     PUBLIC
-    $<INSTALL_INTERFACE:include/${PROJECT_NAME}>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+    $<BUILD_INTERFACE:${GENERATED_SERVER_SRC_DIR}/models>
+    $<BUILD_INTERFACE:${GENERATED_SERVER_SRC_DIR}/handlers>
+    $<BUILD_INTERFACE:${GENERATED_SERVER_SRC_DIR}/requests>
     )
 
 add_subdirectory(app)

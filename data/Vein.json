@@ -86,6 +86,115 @@
           }
         }
       },
+      "post": {
+        "tags": [
+          "Vein"
+        ],
+        "summary": "Gets information from Vein in bulk from the internal storage",
+        "requestBody": {
+          "description": "The array of fields to get",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/VeinGetRequest"
+                }
+              }
+            },
+            "text/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/VeinGetRequest"
+                }
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/VeinGetRequest"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "If the information could be successfully retrieved.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/VeinGetResponse"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/VeinGetResponse"
+                  }
+                }
+              },
+              "application/*+json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/VeinGetResponse"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "If the request was malformed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/*+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "If the request was wellformed but could not be retrieved.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/*+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "If an unexpected error occured."
+          }
+        }
+      },
       "put": {
         "tags": [
           "Vein"
@@ -181,18 +290,18 @@
   },
   "components": {
     "schemas": {
-      "VeinGet": {
+      "VeinGetRequest": {
         "type": "object",
         "properties": {
-          "EntityID": {
+          "EntityId": {
             "type": "integer",
+            "description": "The Entity Id to request",
             "format": "int32",
-            "description": "The component ID of the desired information",
             "nullable": false
           },
-          "componentName": {
+          "ComponentName": {
             "type": "string",
-            "description": "The component name of the desired information",
+            "description": "The component name to request",
             "nullable": false
           }
         }
@@ -213,6 +322,16 @@
           "status": {
             "type": "integer",
             "format": "int32",
+            "nullable": true
+          },
+          "EntityId": {
+            "type": "integer",
+            "description": "The requested EntityId",
+            "nullable": true
+          },
+          "ComponentName": {
+            "type": "string",
+            "description": "The requested ComponentName",
             "nullable": true
           }
         }

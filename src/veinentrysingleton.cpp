@@ -5,7 +5,6 @@
 #include <QCoreApplication>
 #include <taskcontainerparallel.h>
 
-
 TaskSimpleVeinGetterPtr VeinEntrySingleton::getFromVein(int entityId, QString componentName)
 {
     TaskSimpleVeinGetterPtr task = TaskSimpleVeinGetter::create(entityId, componentName, m_cmdEventHandlerSystem);
@@ -43,13 +42,22 @@ VeinEntrySingleton::VeinEntrySingleton(VeinTcp::AbstractTcpNetworkFactoryPtr tcp
     connect(&m_tcpSystem, &VeinNet::TcpSystem::sigConnnectionEstablished, this, [&](){
         m_dummyComponentList = std::make_unique<QStringList>();
 
-        m_subscriberTask->addSub(createSubscriptionTask(1050, "DFTModule"));
+        m_subscriberTask->addSub(createSubscriptionTask(veinRestEntityIds::DFTMODULE1, "DFTModule"));
+        m_subscriberTask->addSub(createSubscriptionTask(veinRestEntityIds::POWER1MODULE1, "Power1Module1"));
+        m_subscriberTask->addSub(createSubscriptionTask(veinRestEntityIds::POWER1MODULE2, "Power1Module2"));
+        m_subscriberTask->addSub(createSubscriptionTask(veinRestEntityIds::POWER1MODULE3, "Power1Module3"));
+        m_subscriberTask->addSub(createSubscriptionTask(veinRestEntityIds::POWER1MODULE4, "Power1Module4"));
+        m_subscriberTask->addSub(createSubscriptionTask(veinRestEntityIds::RANGEMODULE1, "RangeModule1"));
+        m_subscriberTask->addSub(createSubscriptionTask(veinRestEntityIds::RMSMODULE1, "RMSModule1"));
+        m_subscriberTask->addSub(createSubscriptionTask(veinRestEntityIds::FFTMODULE1, "FFTModule1"));
+        m_subscriberTask->addSub(createSubscriptionTask(veinRestEntityIds::LAMBDAMODULE1, "LambdaModule1"));
+        m_subscriberTask->addSub(createSubscriptionTask(veinRestEntityIds::SYSTEM, "_System"));
 
         m_subscriberTask->start();
     });
 }
 
-TaskTemplatePtr VeinEntrySingleton::createSubscriptionTask(int entityId, const QString &entityName)
+TaskTemplatePtr VeinEntrySingleton::createSubscriptionTask(veinRestEntityIds entityId, const QString &entityName)
 {
     const QString logText = QString("%1 (ID %2)").arg(entityName).arg(entityId);
     TaskTemplatePtr task = TaskClientEntitySubscribe::create(entityId, m_cmdEventHandlerSystem, m_dummyComponentList, 2000, [=](){
