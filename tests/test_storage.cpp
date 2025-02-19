@@ -28,7 +28,7 @@ void test_storage::access_storage_of_vein_singleton()
 
     constexpr int dftEntityId = 1050;
 
-    TestDspInterfacePtr dspInterface = testRunner->getDspInterface(dftEntityId);
+    TestDspInterfacePtr dspInterface = m_testRunner->getDspInterface(dftEntityId);
     TestDspValues dspValues(dspInterface->getValueList());
     dspValues.setAllValuesSymmetricAc(230, 5, 0, 50);
     dspValues.fireDftActualValues(dspInterface);

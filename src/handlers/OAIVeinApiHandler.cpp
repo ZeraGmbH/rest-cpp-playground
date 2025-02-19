@@ -74,12 +74,12 @@ QList<OAIVeinGetResponse> OAIVeinApiHandler::generateBulkAnswer(QList<OAIVeinGet
 QString OAIVeinApiHandler::variantToJsonString(QVariant input)
 {
     QString typeName = input.typeName();
-    QJsonDocument doc;
-
+    QString returnValue;
 
     if (static_cast<QMetaType::Type>(input.type()) == QMetaType::QJsonObject) {
         QJsonObject jsonObj = QJsonValue::fromVariant(input).toObject();
-        doc = QJsonDocument(jsonObj);
+        QJsonDocument doc = QJsonDocument(jsonObj);
+        returnValue = doc.toJson(QJsonDocument::Compact);
     }
     else if(typeName.contains("List"))
     {
@@ -89,14 +89,17 @@ QString OAIVeinApiHandler::variantToJsonString(QVariant input)
         {
             jsonArray.append(QJsonValue::fromVariant(item));
         }
-        doc = QJsonDocument(jsonArray);
+        QJsonDocument doc = QJsonDocument(jsonArray);
+        returnValue = doc.toJson(QJsonDocument::Compact);
     }
     else {
         QJsonValue jsonValue = QJsonValue::fromVariant(input);
-        doc = QJsonDocument(QJsonArray{jsonValue});
+        QJsonDocument doc = QJsonDocument(QJsonArray{jsonValue});
+        QString serialized = doc.toJson(QJsonDocument::Compact);
+        returnValue = serialized.mid(1, serialized.length() - 2);
     }
 
-    return doc.toJson(QJsonDocument::Compact);
+    return returnValue;
 }
 
 
