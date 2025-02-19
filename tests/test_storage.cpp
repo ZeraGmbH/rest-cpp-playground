@@ -30,6 +30,8 @@ void test_storage::access_storage_of_vein_singleton()
     VeinEntrySingleton& veinSingleton = VeinEntrySingleton::getInstance();
     VeinStorage::AbstractDatabase* veinStorageDb = veinSingleton.getStorageDb();
 
+
+    constexpr int dftEntityId = 1050;
     TestDspInterfacePtr dspInterface = testRunner->getDspInterfaceList()[6];
     TestDspValues dspValues(dspInterface->getValueList());
 
@@ -37,11 +39,11 @@ void test_storage::access_storage_of_vein_singleton()
     dspValues.fireDftActualValues(dspInterface);
     TimeMachineObject::feedEventLoop();
 
-    QList<QString> comp1050 = veinStorageDb->getComponentList(1050);
-    QVERIFY(comp1050.length() == 28);
-    QVERIFY(veinStorageDb->hasStoredValue(1050, "ACT_POL_DFTPN4") == true);
+    QList<QString> componentsDft = veinStorageDb->getComponentList(dftEntityId);
+    QVERIFY(componentsDft.length() == 28);
+    QVERIFY(veinStorageDb->hasStoredValue(dftEntityId, "ACT_POL_DFTPN4") == true);
 
-    QList<double> exampleValue = veinStorageDb->getStoredValue(1050, "ACT_POL_DFTPN4").value<QList<double>>();
+    QList<double> exampleValue = veinStorageDb->getStoredValue(dftEntityId, "ACT_POL_DFTPN4").value<QList<double>>();
 
     QVERIFY(exampleValue[0] == 7.071067810058594);
 }
