@@ -44,10 +44,17 @@ QList<OAIVeinGetResponse> OAIVeinApiHandler::generateBulkAnswer(QList<OAIVeinGet
 
         if(storage->hasStoredValue(item.getEntityId(), item.getComponentName())){
             QVariant value = storage->getStoredValue(item.getEntityId(), item.getComponentName());
+            QString typeName = value.typeName();
             responseEntry.setType(value.typeName());
             if(value.canConvert<QString>())
             {
                 responseEntry.setReturnInformation(value.toString());
+                responseEntry.setStatus(200);
+            }
+            else if(typeName.contains("List"))
+            {
+                QVariantList list = value.value<QVariantList>();
+                responseEntry.setReturnInformation(listToJsonString(list));
                 responseEntry.setStatus(200);
             }
             else
@@ -69,6 +76,19 @@ QList<OAIVeinGetResponse> OAIVeinApiHandler::generateBulkAnswer(QList<OAIVeinGet
     return response;
 }
 
+QString OAIVeinApiHandler::listToJsonString(QVariantList input)
+{
+    QJsonArray jsonArray;
+    for (const QVariant& item : input)
+    {
+        jsonArray.append(QJsonValue::fromVariant(item));
+    }
+
+    QJsonDocument doc(jsonArray);
+
+    return doc.toJson(QJsonDocument::Compact);
+}
+
 
 void OAIVeinApiHandler::apiV1VeinGet(qint32 entity_id, QString component_name) {
     Q_UNUSED(entity_id);
@@ -80,17 +100,23 @@ void OAIVeinApiHandler::apiV1VeinGet(qint32 entity_id, QString component_name) {
         std::shared_ptr<TaskSimpleVeinGetter> taskSharedPtr = std::move(task);
 
         auto conn = std::make_shared<QMetaObject::Connection>();
-        *conn = connect(taskSharedPtr.get(), &TaskTemplate::sigFinish, this, [reqObj, taskSharedPtr, conn, entity_id, component_name](bool ok, int taskId){
+        *conn = connect(taskSharedPtr.get(), &TaskTemplate::sigFinish, this, [this ,reqObj, taskSharedPtr, conn, entity_id, component_name](bool ok, int taskId){
 
             OAIVeinGetResponse res;
             if (ok)
             {
                 QVariant ret = taskSharedPtr->getValue();
+                QString typeName = ret.typeName();
                 if (static_cast<QMetaType::Type>(taskSharedPtr->getValue().type()) == QMetaType::QJsonObject) {
                     QJsonObject jsonObj = QJsonValue::fromVariant(ret).toObject();
                     QJsonDocument doc(jsonObj);
                     QString jsonString = doc.toJson(QJsonDocument::Compact);
                     ret = jsonString;
+                }
+                else if(typeName.contains("List"))
+                {
+                    QVariantList list = ret.value<QVariantList>();
+                    ret = listToJsonString(list);
                 }
 
                 res.setReturnInformation(ret.toString());
