@@ -25,16 +25,16 @@ void test_storage::initTestCase()
 
 void test_storage::access_storage_of_vein_singleton()
 {
-    std::unique_ptr<ModuleManagerTestRunner> testRunner = setupModuleManager(ZeraModules::ModuleManager::getInstalledSessionPath() + "/mt310s2-emob-session-ac.json");
+    const QString sessionConfig = ZeraModules::ModuleManager::getInstalledSessionPath() + "/mt310s2-emob-session-ac.json";
+    std::unique_ptr<ModuleManagerTestRunner> testRunner = setupModuleManager(sessionConfig);
 
     VeinEntrySingleton& veinSingleton = VeinEntrySingleton::getInstance();
     VeinStorage::AbstractDatabase* veinStorageDb = veinSingleton.getStorageDb();
 
-
     constexpr int dftEntityId = 1050;
+
     TestDspInterfacePtr dspInterface = testRunner->getDspInterface(dftEntityId);
     TestDspValues dspValues(dspInterface->getValueList());
-
     dspValues.setAllValuesSymmetricAc(5, 5, 0, 50);
     dspValues.fireDftActualValues(dspInterface);
     TimeMachineObject::feedEventLoop();
