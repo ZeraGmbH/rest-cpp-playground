@@ -45,7 +45,7 @@ void test_storage::access_storage_of_vein_singleton()
 
     QList<double> exampleValue = veinStorageDb->getStoredValue(dftEntityId, "ACT_POL_DFTPN4").value<QList<double>>();
 
-    QVERIFY(exampleValue[0] == 7.071067810058594);
+    QCOMPARE(exampleValue[0], float(5 * M_SQRT2));
 }
 
 std::unique_ptr<ModuleManagerTestRunner> test_storage::setupModuleManager(QString config)
