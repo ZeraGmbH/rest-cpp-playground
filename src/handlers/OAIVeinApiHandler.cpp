@@ -46,14 +46,14 @@ QList<OAIVeinGetResponse> OAIVeinApiHandler::generateBulkAnswer(QList<OAIVeinGet
             QVariant value = storage->getStoredValue(item.getEntityId(), item.getComponentName());
             QString returnValue = variantToJsonString(value);
             responseEntry.setType(value.typeName());
-            if(returnValue != "[null]")
+            if(returnValue != "null")
             {
                 responseEntry.setReturnInformation(returnValue);
                 responseEntry.setStatus(200);
             }
             else
             {
-                responseEntry.setReturnInformation("[]");
+                responseEntry.setReturnInformation("null");
                 responseEntry.setStatus(422);
                 responseEntry.setType("Invalid");
             }
@@ -63,7 +63,7 @@ QList<OAIVeinGetResponse> OAIVeinApiHandler::generateBulkAnswer(QList<OAIVeinGet
         {
             responseEntry.setStatus(422);
             responseEntry.setType("Invalid");
-            responseEntry.setReturnInformation("[\"Timeout or not existing entity or component\"]");
+            responseEntry.setReturnInformation("\"Timeout or not existing entity or component\"");
         }
 
         response.append(responseEntry);
@@ -119,16 +119,21 @@ void OAIVeinApiHandler::apiV1VeinGet(qint32 entity_id, QString component_name) {
             if (ok)
             {
                 QVariant ret = taskSharedPtr->getValue();
+                QString retString = variantToJsonString(ret);
+                if(retString != "null")
+                    res.setStatus(200);
+                else
+                    res.setStatus(422);
 
-                res.setReturnInformation(variantToJsonString(ret));
+                res.setReturnInformation(retString);
                 res.setType(taskSharedPtr->getValue().typeName());
                 res.setComponentName(component_name);
                 res.setEntityId(entity_id);
-                res.setStatus(200);
+
             }
             else
             {
-                res.setReturnInformation("[\"Timeout or not existing entity or component\"]");
+                res.setReturnInformation("\"Timeout or not existing entity or component\"");
                 res.setType("Invalid");
                 res.setStatus(422);
             }
