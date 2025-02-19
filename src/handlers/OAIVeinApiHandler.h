@@ -31,7 +31,7 @@ public:
     OAIVeinApiHandler();
     virtual ~OAIVeinApiHandler();
     QList<OAIVeinGetResponse> generateBulkAnswer(QList<OAIVeinGetRequest> oai_vein_get_request);
-    QString listToJsonString(QVariantList input);
+    QString variantToJsonString(QVariant input);
 
 public slots:
     virtual void apiV1VeinGet(qint32 entity_id, QString component_name);

@@ -44,23 +44,18 @@ QList<OAIVeinGetResponse> OAIVeinApiHandler::generateBulkAnswer(QList<OAIVeinGet
 
         if(storage->hasStoredValue(item.getEntityId(), item.getComponentName())){
             QVariant value = storage->getStoredValue(item.getEntityId(), item.getComponentName());
-            QString typeName = value.typeName();
+            QString returnValue = variantToJsonString(value);
             responseEntry.setType(value.typeName());
-            if(value.canConvert<QString>())
+            if(returnValue != "[null]")
             {
-                responseEntry.setReturnInformation(value.toString());
-                responseEntry.setStatus(200);
-            }
-            else if(typeName.contains("List"))
-            {
-                QVariantList list = value.value<QVariantList>();
-                responseEntry.setReturnInformation(listToJsonString(list));
+                responseEntry.setReturnInformation(returnValue);
                 responseEntry.setStatus(200);
             }
             else
             {
-                responseEntry.setReturnInformation("");
+                responseEntry.setReturnInformation("[]");
                 responseEntry.setStatus(422);
+                responseEntry.setType("Invalid");
             }
 
         }
@@ -68,7 +63,7 @@ QList<OAIVeinGetResponse> OAIVeinApiHandler::generateBulkAnswer(QList<OAIVeinGet
         {
             responseEntry.setStatus(422);
             responseEntry.setType("Invalid");
-            responseEntry.setReturnInformation("Timeout or not existing entity or component");
+            responseEntry.setReturnInformation("[\"Timeout or not existing entity or component\"]");
         }
 
         response.append(responseEntry);
@@ -76,15 +71,30 @@ QList<OAIVeinGetResponse> OAIVeinApiHandler::generateBulkAnswer(QList<OAIVeinGet
     return response;
 }
 
-QString OAIVeinApiHandler::listToJsonString(QVariantList input)
+QString OAIVeinApiHandler::variantToJsonString(QVariant input)
 {
-    QJsonArray jsonArray;
-    for (const QVariant& item : input)
-    {
-        jsonArray.append(QJsonValue::fromVariant(item));
-    }
+    QString typeName = input.typeName();
+    QJsonDocument doc;
 
-    QJsonDocument doc(jsonArray);
+
+    if (static_cast<QMetaType::Type>(input.type()) == QMetaType::QJsonObject) {
+        QJsonObject jsonObj = QJsonValue::fromVariant(input).toObject();
+        doc = QJsonDocument(jsonObj);
+    }
+    else if(typeName.contains("List"))
+    {
+        QVariantList list = input.value<QVariantList>();
+        QJsonArray jsonArray;
+        for (const QVariant& item : std::as_const(list))
+        {
+            jsonArray.append(QJsonValue::fromVariant(item));
+        }
+        doc = QJsonDocument(jsonArray);
+    }
+    else {
+        QJsonValue jsonValue = QJsonValue::fromVariant(input);
+        doc = QJsonDocument(QJsonArray{jsonValue});
+    }
 
     return doc.toJson(QJsonDocument::Compact);
 }
@@ -106,20 +116,8 @@ void OAIVeinApiHandler::apiV1VeinGet(qint32 entity_id, QString component_name) {
             if (ok)
             {
                 QVariant ret = taskSharedPtr->getValue();
-                QString typeName = ret.typeName();
-                if (static_cast<QMetaType::Type>(taskSharedPtr->getValue().type()) == QMetaType::QJsonObject) {
-                    QJsonObject jsonObj = QJsonValue::fromVariant(ret).toObject();
-                    QJsonDocument doc(jsonObj);
-                    QString jsonString = doc.toJson(QJsonDocument::Compact);
-                    ret = jsonString;
-                }
-                else if(typeName.contains("List"))
-                {
-                    QVariantList list = ret.value<QVariantList>();
-                    ret = listToJsonString(list);
-                }
 
-                res.setReturnInformation(ret.toString());
+                res.setReturnInformation(variantToJsonString(ret));
                 res.setType(taskSharedPtr->getValue().typeName());
                 res.setComponentName(component_name);
                 res.setEntityId(entity_id);
@@ -127,7 +125,7 @@ void OAIVeinApiHandler::apiV1VeinGet(qint32 entity_id, QString component_name) {
             }
             else
             {
-                res.setReturnInformation("Timeout or not existing entity or component");
+                res.setReturnInformation("[\"Timeout or not existing entity or component\"]");
                 res.setType("Invalid");
                 res.setStatus(422);
             }
