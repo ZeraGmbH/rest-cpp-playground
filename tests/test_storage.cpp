@@ -12,12 +12,6 @@
 
 QTEST_MAIN(test_storage)
 
-enum dspInterfaces{
-    RangeObsermatic,
-    AdjustManagement,
-    RangeModuleMeasProgram
-};
-
 void test_storage::initTestCase()
 {
     TimerFactoryQtForTest::enableTest();
@@ -69,14 +63,4 @@ std::unique_ptr<ModuleManagerTestRunner> test_storage::setupModuleManager(QStrin
     TimeMachineObject::feedEventLoop();
 
     return testRunner;
-}
-
-void test_storage::waitForSignal(QSignalSpy &signalSpy, int expectedNumberOfSignals)
-{
-    for(int i=0; i<100; i++) {
-        if(signalSpy.count() < expectedNumberOfSignals)
-            QTest::qWait(10);
-        else
-            break;
-    }
 }
