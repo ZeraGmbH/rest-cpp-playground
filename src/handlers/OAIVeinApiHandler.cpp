@@ -85,7 +85,7 @@ QString OAIVeinApiHandler::variantToJsonString(QVariant input)
     {
         QVariantList list = input.value<QVariantList>();
         QJsonArray jsonArray;
-        for (const QVariant& item : std::as_const(list))
+        for (const QVariant& item : list)
         {
             jsonArray.append(QJsonValue::fromVariant(item));
         }
