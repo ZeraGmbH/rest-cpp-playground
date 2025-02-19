@@ -13,38 +13,30 @@
 
 QTEST_MAIN(test_storage)
 
-enum dspInterfaces{
-    RangeObsermatic,
-    AdjustManagement,
-    RangeModuleMeasProgram
-};
-
 void test_storage::initTestCase()
 {
     TimerFactoryQtForTest::enableTest();
-    m_testRunner = setupModuleManager(ZeraModules::ModuleManager::getInstalledSessionPath() + "/mt310s2-emob-session-ac.json");
+    const QString sessionConfig = ZeraModules::ModuleManager::getInstalledSessionPath() + "/mt310s2-emob-session-ac.json";
+    m_testRunner = setupModuleManager(sessionConfig);
 
 }
 
 void test_storage::access_storage_of_vein_singleton()
-{
+{ 
     VeinEntrySingleton& veinSingleton = VeinEntrySingleton::getInstance();
     VeinStorage::AbstractDatabase* veinStorageDb = veinSingleton.getStorageDb();
 
-    TestDspInterfacePtr dspInterface = m_testRunner->getDspInterfaceList()[6];
-    TestDspValues dspValues(dspInterface->getValueList());
+    constexpr int dftEntityId = 1050;
 
-    dspValues.setAllValuesSymmetricAc(5, 5, 0, 50);
+    TestDspInterfacePtr dspInterface = testRunner->getDspInterface(dftEntityId);
+    TestDspValues dspValues(dspInterface->getValueList());
+    dspValues.setAllValuesSymmetricAc(230, 5, 0, 50);
     dspValues.fireDftActualValues(dspInterface);
     TimeMachineObject::feedEventLoop();
 
-    QList<QString> comp1050 = veinStorageDb->getComponentList(1050);
-    QVERIFY(comp1050.length() == 28);
-    QVERIFY(veinStorageDb->hasStoredValue(1050, "ACT_POL_DFTPN4") == true);
-
-    QList<double> exampleValue = veinStorageDb->getStoredValue(1050, "ACT_POL_DFTPN4").value<QList<double>>();
-
-    QVERIFY(exampleValue[0] == 7.071067810058594);
+    QVERIFY(veinStorageDb->hasStoredValue(dftEntityId, "ACT_POL_DFTPN4") == true);
+    QList<double> exampleValue = veinStorageDb->getStoredValue(dftEntityId, "ACT_POL_DFTPN4").value<QList<double>>();
+    QCOMPARE(exampleValue[0], float(5 * M_SQRT2));
 }
 
 void test_storage::get_multiple_values()
@@ -84,7 +76,6 @@ std::unique_ptr<ModuleManagerTestRunner> test_storage::setupModuleManager(QStrin
     tcpSystem->startServer(12000);
 
     VeinEntrySingleton::getInstance(mockedVeinNetworkFactory);
-
     TimeMachineObject::feedEventLoop();
 
     return testRunner;

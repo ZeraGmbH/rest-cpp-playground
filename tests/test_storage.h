@@ -2,7 +2,6 @@
 #define TEST_STORAGE_H
 
 #include "modulemanagertestrunner.h"
-#include "qsignalspy.h"
 #include <QObject>
 
 class test_storage : public QObject
