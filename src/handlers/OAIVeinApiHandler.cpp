@@ -110,39 +110,22 @@ void OAIVeinApiHandler::apiV1VeinGet(qint32 entity_id, QString component_name) {
     auto reqObj = qobject_cast<OAIVeinApiRequest*>(sender());
     if( reqObj != nullptr )
     {
-        TaskSimpleVeinGetterPtr task = VeinEntrySingleton::getInstance().getFromVein(entity_id, component_name);
-        std::shared_ptr<TaskSimpleVeinGetter> taskSharedPtr = std::move(task);
+        OAIVeinGetRequest request;
+        request.setEntityId(entity_id);
+        request.setComponentName(component_name);
+        std::shared_ptr<SubscriptionManager> subscriptionManager = VeinEntrySingleton::getInstance().getSubscriptionManager();
+        QList<int> entitiesRequested = QList<int>() << entity_id;
 
         auto conn = std::make_shared<QMetaObject::Connection>();
-        *conn = connect(taskSharedPtr.get(), &TaskTemplate::sigFinish, this, [this ,reqObj, taskSharedPtr, conn, entity_id, component_name](bool ok, int taskId){
+        *conn = connect(subscriptionManager.get(), &SubscriptionManager::finishedSubscribing, this, [&, request, reqObj, conn](bool ok){
+            QList<OAIVeinGetResponse> res;
+            res = generateBulkAnswer(QList<OAIVeinGetRequest>() << request);
 
-            OAIVeinGetResponse res;
-            if (ok)
-            {
-                QVariant ret = taskSharedPtr->getValue();
-                QString retString = variantToJsonString(ret);
-                if(retString != "null")
-                    res.setStatus(200);
-                else
-                    res.setStatus(422);
-
-                res.setReturnInformation(retString);
-                res.setType(taskSharedPtr->getValue().typeName());
-                res.setComponentName(component_name);
-                res.setEntityId(entity_id);
-
-            }
-            else
-            {
-                res.setReturnInformation("\"Timeout or not existing entity or component\"");
-                res.setType("Invalid");
-                res.setStatus(422);
-            }
-
-            reqObj->apiV1VeinGetResponse(res);
+            reqObj->apiV1VeinGetResponse(res[0]);
             disconnect(*conn);
         });
-        taskSharedPtr->start();
+
+        subscriptionManager->subscribeToEntities(entitiesRequested);
     }
 }
 
