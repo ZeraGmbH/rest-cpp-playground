@@ -21,7 +21,7 @@
 
 namespace OpenAPI {
 
-OAIApiRouter::OAIApiRouter() {
+OAIApiRouter::OAIApiRouter(VeinEntryPtr veinEntry) : m_veinEntry(veinEntry) {
     createApiHandlers();
 }
 
@@ -30,7 +30,7 @@ OAIApiRouter::~OAIApiRouter(){
 }
 
 void OAIApiRouter::createApiHandlers() {
-    mOAIVeinApiHandler = QSharedPointer<OAIVeinApiHandler>::create();
+    mOAIVeinApiHandler = QSharedPointer<OAIVeinApiHandler>::create(m_veinEntry);
 }
 
 

@@ -17,11 +17,11 @@
 
 #include "OAIVeinApiHandler.h"
 #include "OAIVeinApiRequest.h"
-#include "veinentrysingleton.h"
 
 namespace OpenAPI {
 
-OAIVeinApiHandler::OAIVeinApiHandler(){
+OAIVeinApiHandler::OAIVeinApiHandler(VeinEntryPtr veinEntry) : m_veinEntry(veinEntry)
+{
 
 }
 
@@ -38,7 +38,7 @@ QList<OAIVeinGetResponse> OAIVeinApiHandler::generateBulkAnswer(QList<OAIVeinGet
         int entityId = item.getEntityId();
         QString componentName = item.getComponentName();
         OAIVeinGetResponse responseEntry;
-        VeinStorage::AbstractDatabase* storage = VeinEntrySingleton::getInstance().getStorageDb();
+        VeinStorage::AbstractDatabase* storage = m_veinEntry->getStorageDb();
 
         responseEntry.setComponentName(componentName);
         responseEntry.setEntityId(entityId);
@@ -113,7 +113,7 @@ void OAIVeinApiHandler::apiV1VeinGet(qint32 entity_id, QString component_name) {
         OAIVeinGetRequest request;
         request.setEntityId(entity_id);
         request.setComponentName(component_name);
-        std::shared_ptr<SubscriptionManager> subscriptionManager = VeinEntrySingleton::getInstance().getSubscriptionManager();
+        std::shared_ptr<SubscriptionManager> subscriptionManager = m_veinEntry->getSubscriptionManager();
         QList<int> entitiesRequested = QList<int>() << entity_id;
 
         auto conn = std::make_shared<QMetaObject::Connection>();
@@ -134,7 +134,7 @@ void OAIVeinApiHandler::apiV1VeinPost(QList<OAIVeinGetRequest> oai_vein_get_requ
     auto reqObj = qobject_cast<OAIVeinApiRequest*>(sender());
     if( reqObj != nullptr )
     {
-        std::shared_ptr<SubscriptionManager> subscriptionManager = VeinEntrySingleton::getInstance().getSubscriptionManager();
+        std::shared_ptr<SubscriptionManager> subscriptionManager = m_veinEntry->getSubscriptionManager();
         QList<int> entitiesRequested;
         for (const auto &item : oai_vein_get_request)
             if(!entitiesRequested.contains(item.getEntityId()))entitiesRequested.append(item.getEntityId());
@@ -157,7 +157,7 @@ void OAIVeinApiHandler::apiV1VeinPut(OAIVeinSet oai_vein_set) {
     auto reqObj = qobject_cast<OAIVeinApiRequest*>(sender());
     if( reqObj != nullptr )
     {
-        TaskSimpleVeinSetterPtr task = VeinEntrySingleton::getInstance().setToVein(oai_vein_set.getEntityId(),oai_vein_set.getComponentName(), oai_vein_set.getNewValue());
+        TaskSimpleVeinSetterPtr task = m_veinEntry->setToVein(oai_vein_set.getEntityId(),oai_vein_set.getComponentName(), oai_vein_set.getNewValue());
         std::shared_ptr<TaskSimpleVeinSetter> taskSharedPtr = std::move(task);
 
         if (oai_vein_set.getEntityId() == 0)
