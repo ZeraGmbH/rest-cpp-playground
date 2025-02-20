@@ -26,6 +26,9 @@ void test_storage::access_storage_of_vein_singleton()
     VeinEntrySingleton& veinSingleton = VeinEntrySingleton::getInstance();
     VeinStorage::AbstractDatabase* veinStorageDb = veinSingleton.getStorageDb();
 
+    veinSingleton.getSubscriptionManager()->subscribeToEntities(QList<int>() << 1050);
+    TimeMachineObject::feedEventLoop();
+
     constexpr int dftEntityId = 1050;
 
     TestDspInterfacePtr dspInterface = m_testRunner->getDspInterface(dftEntityId);
@@ -41,6 +44,9 @@ void test_storage::access_storage_of_vein_singleton()
 
 void test_storage::get_multiple_values()
 {
+    VeinEntrySingleton::getInstance().getSubscriptionManager()->subscribeToEntities(QList<int>() << 1050 << 1060);
+    TimeMachineObject::feedEventLoop();
+
     VeinStorage::AbstractDatabase* veinStorageDb = VeinEntrySingleton::getInstance().getStorageDb();
     m_testRunner->setVfComponent(1050, "PAR_Interval", QVariant(2));
     m_testRunner->setVfComponent(1060, "PAR_Interval", QVariant(3));
