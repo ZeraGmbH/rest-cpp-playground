@@ -18,6 +18,7 @@
 #include "OAIVeinGetRequest.h"
 #include "OAIVeinGetResponse.h"
 #include "OAIVeinSet.h"
+#include "veinentry.h"
 #include <QList>
 #include <QString>
 
@@ -28,7 +29,7 @@ class OAIVeinApiHandler : public QObject
     Q_OBJECT
 
 public:
-    OAIVeinApiHandler();
+    OAIVeinApiHandler(VeinEntryPtr veinEntry);
     virtual ~OAIVeinApiHandler();
     QList<OAIVeinGetResponse> generateBulkAnswer(QList<OAIVeinGetRequest> oai_vein_get_request);
     QString variantToJsonString(QVariant input);
@@ -37,6 +38,9 @@ public slots:
     virtual void apiV1VeinGet(qint32 entity_id, QString component_name);
     virtual void apiV1VeinPost(QList<OAIVeinGetRequest> oai_vein_get_request);
     virtual void apiV1VeinPut(OAIVeinSet oai_vein_set);
+
+private:
+    VeinEntryPtr m_veinEntry;
 };
 
 }

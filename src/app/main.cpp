@@ -10,6 +10,7 @@
  */
 
 
+#include "veinentry.h"
 #include <QCommandLineOption>
 #include <QCommandLineParser>
 #include <QCoreApplication>
@@ -25,8 +26,7 @@
 #endif
 #include <qhttpengine/server.h>
 #include "OAIApiRouter.h"
-
-#include "veinentrysingleton.h"
+#include "tcpnetworkfactory.h"
 
 #ifdef __linux__
 void catchUnixSignals(QList<int> quitSignals) {
@@ -89,9 +89,10 @@ int main(int argc, char * argv[])
     // Obtain the values
     QHostAddress address = QHostAddress(parser.value(addressOption));
     quint16 port = static_cast<quint16>(parser.value(portOption).toInt());
-    VeinEntrySingleton::getInstance();
     QSharedPointer<OpenAPI::OAIApiRequestHandler> handler(new OpenAPI::OAIApiRequestHandler());
-    auto router = QSharedPointer<OpenAPI::OAIApiRouter>::create();
+    VeinTcp::AbstractTcpNetworkFactoryPtr tcpNetworkFactory = VeinTcp::TcpNetworkFactory::create();
+    VeinEntryPtr veinEntry = VeinEntry::create(tcpNetworkFactory);
+    auto router = QSharedPointer<OpenAPI::OAIApiRouter>::create(veinEntry);
     router->setUpRoutes();
     QObject::connect(handler.data(), &OpenAPI::OAIApiRequestHandler::requestReceived, [&](QHttpEngine::Socket *socket) {
         router->processRequest(socket);

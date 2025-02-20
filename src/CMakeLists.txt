@@ -31,6 +31,12 @@ foreach(file ${SRCS})
         # remove from list to add rest in bulk later
         list(REMOVE_ITEM SRCS "${file}")
     endif()
+    if ("${GENERATED_SERVER_SRC_DIR}/requests/${filename}" IN_LIST GENERATED_SRCS)
+        list(REMOVE_ITEM GENERATED_SRCS "${GENERATED_SERVER_SRC_DIR}/requests/${filename}")
+        list(APPEND GENERATED_SRCS ${file})
+        # remove from list to add rest in bulk later
+        list(REMOVE_ITEM SRCS "${file}")
+    endif()
 endforeach()
 
 # add every leftovers custom sources, which not replace generated ones
@@ -56,9 +62,9 @@ target_include_directories(${PROJECT_NAME}-lib
     PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/handlers>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/requests>
     $<BUILD_INTERFACE:${GENERATED_SERVER_SRC_DIR}/models>
-    $<BUILD_INTERFACE:${GENERATED_SERVER_SRC_DIR}/handlers>
-    $<BUILD_INTERFACE:${GENERATED_SERVER_SRC_DIR}/requests>
     )
 
 add_subdirectory(app)

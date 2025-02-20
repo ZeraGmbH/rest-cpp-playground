@@ -25,6 +25,7 @@
 #include <qhttpengine/qobjecthandler.h>
 
 #include "OAIVeinApiHandler.h"
+#include "veinentry.h"
 
 
 namespace OpenAPI {
@@ -55,7 +56,7 @@ class OAIApiRouter : public QObject
 {
     Q_OBJECT
 public:
-    OAIApiRouter();
+    OAIApiRouter(VeinEntryPtr veinEntry);
     virtual ~OAIApiRouter();
 
     void setUpRoutes();
@@ -71,6 +72,7 @@ private:
 
 
     QSharedPointer<OAIVeinApiHandler> mOAIVeinApiHandler;
+    VeinEntryPtr m_veinEntry;
 protected:
     // override this method to provide custom class derived from ApiHandler classes
     virtual void createApiHandlers();
