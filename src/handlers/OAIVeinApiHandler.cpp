@@ -32,6 +32,7 @@ OAIVeinApiHandler::~OAIVeinApiHandler(){
 QList<OAIVeinGetResponse> OAIVeinApiHandler::generateBulkAnswer(QList<OAIVeinGetRequest> oai_vein_get_request)
 {
     QList<OAIVeinGetResponse> response;
+
     for (const auto &item : oai_vein_get_request)
     {
         int entityId = item.getEntityId();
@@ -150,9 +151,22 @@ void OAIVeinApiHandler::apiV1VeinPost(QList<OAIVeinGetRequest> oai_vein_get_requ
     auto reqObj = qobject_cast<OAIVeinApiRequest*>(sender());
     if( reqObj != nullptr )
     {
-        QList<OAIVeinGetResponse> res = generateBulkAnswer(oai_vein_get_request);
+        std::shared_ptr<SubscriptionManager> subscriptionManager = VeinEntrySingleton::getInstance().getSubscriptionManager();
+        QList<int> entitiesRequested;
+        for (const auto &item : oai_vein_get_request)
+            if(!entitiesRequested.contains(item.getEntityId()))entitiesRequested.append(item.getEntityId());
 
-        reqObj->apiV1VeinPostResponse(res);
+        auto conn = std::make_shared<QMetaObject::Connection>();
+        *conn = connect(subscriptionManager.get(), &SubscriptionManager::finishedSubscribing, this, [&, oai_vein_get_request, reqObj, conn](bool ok){
+            QList<OAIVeinGetResponse> res;
+            res = generateBulkAnswer(oai_vein_get_request);
+
+            reqObj->apiV1VeinPostResponse(res);
+            disconnect(*conn);
+        });
+
+        subscriptionManager->subscribeToEntities(entitiesRequested);
+
     }
 }
 

@@ -2,6 +2,7 @@
 #define VEINENTRYSINGLETON_H
 
 #include "commondefines.h"
+#include "subscriptionmanager.h"
 #include <QObject>
 #include <ve_eventhandler.h>
 #include <vn_networksystem.h>
@@ -27,13 +28,12 @@ public:
     TaskSimpleVeinGetterPtr getFromVein(int entityId, QString componentName);
     TaskSimpleVeinSetterPtr setToVein(int entityId, QString componentName, QVariant value);
 
+    std::shared_ptr<SubscriptionManager> getSubscriptionManager();
+
     VeinStorage::AbstractDatabase* getStorageDb();
 
     VeinEntrySingleton(VeinEntrySingleton const&)   = delete;
     void operator=(VeinEntrySingleton const&)       = delete;
-
-signals:
-    void sigSubscriberTasksFinish(bool ok);
 
 private:
     VeinEntrySingleton(VeinTcp::AbstractTcpNetworkFactoryPtr tcpNetworkFactory);
@@ -44,8 +44,7 @@ private:
     VeinNet::TcpSystem m_tcpSystem;
     VeinStorage::ClientStorageEventSystem m_storage;
     VfCmdEventHandlerSystemPtr m_cmdEventHandlerSystem;
-    std::shared_ptr<QStringList> m_dummyComponentList;
-    TaskContainerInterfacePtr m_subscriberTask;
+    std::shared_ptr<SubscriptionManager> m_subscriptionManager;
 
 
 };
