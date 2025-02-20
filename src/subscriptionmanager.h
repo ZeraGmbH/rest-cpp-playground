@@ -30,7 +30,6 @@ private:
     TaskContainerInterfacePtr m_subscriberTask;
     VfCmdEventHandlerSystemPtr m_eventHandler;
     std::shared_ptr<VfComponentChangeNotifier> m_sessionNotifier;
-    QString m_currentSession;
 };
 
 #endif // SUBSCRIPTIONMANAGER_H

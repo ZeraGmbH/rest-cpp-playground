@@ -40,7 +40,7 @@ void SubscriptionManager::subscribeToEntities(QList<int> entities)
 
 void SubscriptionManager::clearSubscriptions()
 {
-    m_subscribedEntities.clear();
+    m_subscribedEntities = QList<int>() << 0;
 }
 
 void SubscriptionManager::startObservingSessionChange(QUuid id)
@@ -66,7 +66,7 @@ void SubscriptionManager::onTaskFinished(bool ok, int taskId)
 void SubscriptionManager::onSessionChange()
 {
     QString newSession = m_sessionNotifier->getValue().toString();
-    if(newSession != "" && newSession != m_currentSession ) clearSubscriptions();
+    if(newSession != "") clearSubscriptions();
 }
 
 
