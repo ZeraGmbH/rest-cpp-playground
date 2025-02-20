@@ -4,11 +4,13 @@ cmake_policy(SET CMP0057 NEW)
 # glob for our custom sources, which are to be injected into the generated code
 file(GLOB SRCS
     ${CMAKE_CURRENT_SOURCE_DIR}/handlers/*.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/requests/*.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp
 )
 
 file(GLOB HEADERS
     ${CMAKE_CURRENT_SOURCE_DIR}/handlers/*.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/requests/*.h
     ${CMAKE_CURRENT_SOURCE_DIR}/*.h
 )
 
