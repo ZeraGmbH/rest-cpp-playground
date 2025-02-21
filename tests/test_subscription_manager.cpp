@@ -44,7 +44,7 @@ void test_subscription_manager::subscribeValidEntityAndFetchValidComponent()
     QList<OpenAPI::OAIVeinGetResponse> response = handler.generateBulkAnswer(QList<OpenAPI::OAIVeinGetRequest>() << request);
 
     QCOMPARE(response[0].getReturnInformation(), "[\"mt310s2-meas-session.json\",\"mt310s2-emob-session-ac.json\",\"mt310s2-emob-session-dc.json\",\"mt310s2-dc-session.json\"]");
-    tcpSystem->deleteLater();
+    tcpSystem->deleteLater(); // remove tcpsystem as it is used in modulemanager and does not clean up properly
 }
 
 void test_subscription_manager::subscribeInvalidEntity()
@@ -72,7 +72,7 @@ void test_subscription_manager::subscribeInvalidEntity()
 
     QVERIFY(spy.length() == 1);
     QCOMPARE(spy[0][0], false);
-    tcpSystem->deleteLater();
+    tcpSystem->deleteLater(); // remove tcpsystem as it is used in modulemanager and does not clean up properly
 }
 
 void test_subscription_manager::subscribeValidEntityContainingInvalidComponents()
@@ -101,7 +101,7 @@ void test_subscription_manager::subscribeValidEntityContainingInvalidComponents(
 
     QVERIFY(spy.length() == 1);
     QCOMPARE(spy[0][0], true);
-    tcpSystem->deleteLater();
+    tcpSystem->deleteLater(); // remove tcpsystem as it is used in modulemanager and does not clean up properly
 }
 
 void test_subscription_manager::subscribeTwice()
@@ -135,5 +135,5 @@ void test_subscription_manager::subscribeTwice()
     QVERIFY(spy.length() == 2);
     QCOMPARE(spy[0][0], true);
     QCOMPARE(spy[1][0], true);
-    tcpSystem->deleteLater();
+    tcpSystem->deleteLater(); // remove tcpsystem as it is used in modulemanager and does not clean up properly
 }
