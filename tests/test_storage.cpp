@@ -47,7 +47,7 @@ void test_storage::access_storage_of_vein_singleton()
     QVERIFY(veinStorageDb->hasStoredValue(dftEntityId, "ACT_POL_DFTPN4") == true);
     QList<double> exampleValue = veinStorageDb->getStoredValue(dftEntityId, "ACT_POL_DFTPN4").value<QList<double>>();
     QCOMPARE(exampleValue[0], float(5 * M_SQRT2));
-    tcpSystem->deleteLater(); // what the **** am i wittnessing here?
+    tcpSystem->deleteLater(); // remove tcpsystem as it is used in modulemanager and does not clean up properly
 }
 
 void test_storage::get_multiple_values()
@@ -83,5 +83,5 @@ void test_storage::get_multiple_values()
     QVERIFY(response.size() == 2);
     QCOMPARE(response[0].getReturnInformation(), "2");
     QCOMPARE(response[1].getReturnInformation(), "3");
-    tcpSystem->deleteLater(); // what the **** am i wittnessing here?
+    tcpSystem->deleteLater(); // remove tcpsystem as it is used in modulemanager and does not clean up properly
 }
