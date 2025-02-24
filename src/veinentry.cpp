@@ -12,8 +12,8 @@ VeinEntry::VeinEntry(VeinTcp::AbstractTcpNetworkFactoryPtr tcpNetworkFactory) :
 {
     m_eventHandler.addSubsystem(&m_netSystem);
     m_eventHandler.addSubsystem(&m_tcpSystem);
-    m_eventHandler.addSubsystem(m_cmdEventHandlerSystem.get());
     m_eventHandler.addSubsystem(&m_storage);
+    m_eventHandler.addSubsystem(m_cmdEventHandlerSystem.get());
     m_netSystem.setOperationMode(VeinNet::NetworkSystem::VNOM_PASS_THROUGH);
 
     m_tcpSystem.connectToServer("127.0.0.1", 12000);
