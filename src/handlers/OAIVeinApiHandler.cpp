@@ -160,17 +160,7 @@ void OAIVeinApiHandler::apiV1VeinPut(OAIVeinSet oai_vein_set) {
         TaskSimpleVeinSetterPtr task = m_veinEntry->setToVein(oai_vein_set.getEntityId(),oai_vein_set.getComponentName(), oai_vein_set.getNewValue());
         std::shared_ptr<TaskSimpleVeinSetter> taskSharedPtr = std::move(task);
 
-        if (oai_vein_set.getEntityId() == 0)
-        {
-            OAIProblemDetails res;
-            res.setStatus(500);
-            res.setDetail("Not allowed: System entity is write protected");
-            res.setTitle("Setter command output");
-            res.setType("");
-            reqObj->apiV1VeinPutResponse(res);
-            return;
-        }
-        else if (!oai_vein_set.is_entity_id_Valid() || !oai_vein_set.is_component_name_Valid() || !oai_vein_set.is_new_value_Valid())
+        if (!oai_vein_set.is_entity_id_Valid() || !oai_vein_set.is_component_name_Valid() || !oai_vein_set.is_new_value_Valid())
         {
             OAIProblemDetails res;
             res.setStatus(400);
