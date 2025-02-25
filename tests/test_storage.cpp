@@ -63,7 +63,6 @@ void test_storage::get_multiple_values()
 
     tcpSystem->startServer(12000);
 
-
     testRunner.setVfComponent(1050, "PAR_Interval", QVariant(2));
     testRunner.setVfComponent(1060, "PAR_Interval", QVariant(3));
     VeinEntryPtr veinEntry = VeinEntry::create(mockedVeinNetworkFactory);
@@ -77,11 +76,15 @@ void test_storage::get_multiple_values()
     QList<OpenAPI::OAIVeinGetRequest> requests;
     requests.append(OpenAPI::OAIVeinGetRequest("{\"EntityId\": 1050, \"ComponentName\": \"PAR_Interval\"}"));
     requests.append(OpenAPI::OAIVeinGetRequest("{\"EntityId\": 1060, \"ComponentName\": \"PAR_Interval\"}"));
+    requests.append(OpenAPI::OAIVeinGetRequest("{\"EntityId\": 1060, \"ComponentName\": \"INF_ModuleInterface\"}"));
 
     QList<OpenAPI::OAIVeinGetResponse> response = handler.generateBulkAnswer(requests);
 
-    QVERIFY(response.size() == 2);
+    QVERIFY(response.size() == 3);
     QCOMPARE(response[0].getReturnInformation(), "2");
     QCOMPARE(response[1].getReturnInformation(), "3");
+    QVERIFY(response[2].getReturnInformation().startsWith("{"));
+    QVERIFY(response[2].getReturnInformation().length() > 2);
+
     tcpSystem->deleteLater(); // remove tcpsystem as it is used in modulemanager and does not clean up properly
 }
