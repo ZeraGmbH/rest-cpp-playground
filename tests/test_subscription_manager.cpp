@@ -15,19 +15,30 @@ void test_subscription_manager::initTestCase()
     TimerFactoryQtForTest::enableTest();
 }
 
-void test_subscription_manager::subscribeValidEntityAndFetchValidComponent()
+void test_subscription_manager::init()
 {
     const QString sessionConfig = ZeraModules::ModuleManager::getInstalledSessionPath() + "/mt310s2-emob-session-ac.json";
-    ModuleManagerTestRunner testRunner(sessionConfig);
+    m_testRunner = std::make_unique<ModuleManagerTestRunner>(sessionConfig);
     VeinTcp::AbstractTcpNetworkFactoryPtr mockedVeinNetworkFactory = VeinTcp::MockTcpNetworkFactory::create();
+    m_tcpSystem = new VeinNet::TcpSystem(mockedVeinNetworkFactory);
     VeinNet::NetworkSystem* netSystem = new VeinNet::NetworkSystem();
     netSystem->setOperationMode(VeinNet::NetworkSystem::VNOM_PASS_THROUGH);
-    VeinNet::TcpSystem* tcpSystem = new VeinNet::TcpSystem(mockedVeinNetworkFactory);
-    testRunner.getModManFacade()->addSubsystem(netSystem);
-    testRunner.getModManFacade()->addSubsystem(tcpSystem);
 
-    tcpSystem->startServer(12000);
+    m_testRunner->getModManFacade()->addSubsystem(netSystem);
+    m_testRunner->getModManFacade()->addSubsystem(m_tcpSystem);
 
+    m_tcpSystem->startServer(12000);
+}
+
+void test_subscription_manager::cleanup()
+{
+    m_testRunner.reset();
+    m_tcpSystem->deleteLater();
+}
+
+void test_subscription_manager::subscribeValidEntityAndFetchValidComponent()
+{
+    VeinTcp::AbstractTcpNetworkFactoryPtr mockedVeinNetworkFactory = VeinTcp::MockTcpNetworkFactory::create();
     VeinEntryPtr veinEntry = VeinEntry::create(mockedVeinNetworkFactory);
 
     std::shared_ptr<SubscriptionManager> subscriptionManager = veinEntry->getSubscriptionManager();
@@ -44,22 +55,11 @@ void test_subscription_manager::subscribeValidEntityAndFetchValidComponent()
     QList<OpenAPI::OAIVeinGetResponse> response = handler.generateBulkAnswer(QList<OpenAPI::OAIVeinGetRequest>() << request);
 
     QCOMPARE(response[0].getReturnInformation(), "[\"mt310s2-meas-session.json\",\"mt310s2-emob-session-ac.json\",\"mt310s2-emob-session-dc.json\",\"mt310s2-dc-session.json\"]");
-    tcpSystem->deleteLater(); // remove tcpsystem as it is used in modulemanager and does not clean up properly
 }
 
 void test_subscription_manager::subscribeInvalidEntity()
 {
-    const QString sessionConfig = ZeraModules::ModuleManager::getInstalledSessionPath() + "/mt310s2-emob-session-ac.json";
-    ModuleManagerTestRunner testRunner(sessionConfig);
     VeinTcp::AbstractTcpNetworkFactoryPtr mockedVeinNetworkFactory = VeinTcp::MockTcpNetworkFactory::create();
-    VeinNet::NetworkSystem* netSystem = new VeinNet::NetworkSystem();
-    netSystem->setOperationMode(VeinNet::NetworkSystem::VNOM_PASS_THROUGH);
-    VeinNet::TcpSystem* tcpSystem = new VeinNet::TcpSystem(mockedVeinNetworkFactory);
-    testRunner.getModManFacade()->addSubsystem(netSystem);
-    testRunner.getModManFacade()->addSubsystem(tcpSystem);
-
-    tcpSystem->startServer(12000);
-
     VeinEntryPtr veinEntry = VeinEntry::create(mockedVeinNetworkFactory);
 
     std::shared_ptr<SubscriptionManager> subscriptionManager = veinEntry->getSubscriptionManager();
@@ -72,22 +72,11 @@ void test_subscription_manager::subscribeInvalidEntity()
 
     QVERIFY(spy.length() == 1);
     QCOMPARE(spy[0][0], false);
-    tcpSystem->deleteLater(); // remove tcpsystem as it is used in modulemanager and does not clean up properly
 }
 
 void test_subscription_manager::subscribeValidEntityContainingInvalidComponents()
 {
-    const QString sessionConfig = ZeraModules::ModuleManager::getInstalledSessionPath() + "/mt310s2-emob-session-ac.json";
-    ModuleManagerTestRunner testRunner(sessionConfig);
     VeinTcp::AbstractTcpNetworkFactoryPtr mockedVeinNetworkFactory = VeinTcp::MockTcpNetworkFactory::create();
-    VeinNet::NetworkSystem* netSystem = new VeinNet::NetworkSystem();
-    netSystem->setOperationMode(VeinNet::NetworkSystem::VNOM_PASS_THROUGH);
-    VeinNet::TcpSystem* tcpSystem = new VeinNet::TcpSystem(mockedVeinNetworkFactory);
-    testRunner.getModManFacade()->addSubsystem(netSystem);
-    testRunner.getModManFacade()->addSubsystem(tcpSystem);
-
-    tcpSystem->startServer(12000);
-
     VeinEntryPtr veinEntry = VeinEntry::create(mockedVeinNetworkFactory);
 
     std::shared_ptr<SubscriptionManager> subscriptionManager = veinEntry->getSubscriptionManager();
@@ -101,22 +90,11 @@ void test_subscription_manager::subscribeValidEntityContainingInvalidComponents(
 
     QVERIFY(spy.length() == 1);
     QCOMPARE(spy[0][0], true);
-    tcpSystem->deleteLater(); // remove tcpsystem as it is used in modulemanager and does not clean up properly
 }
 
 void test_subscription_manager::subscribeTwice()
 {
-    const QString sessionConfig = ZeraModules::ModuleManager::getInstalledSessionPath() + "/mt310s2-emob-session-ac.json";
-    ModuleManagerTestRunner testRunner(sessionConfig);
     VeinTcp::AbstractTcpNetworkFactoryPtr mockedVeinNetworkFactory = VeinTcp::MockTcpNetworkFactory::create();
-    VeinNet::NetworkSystem* netSystem = new VeinNet::NetworkSystem();
-    netSystem->setOperationMode(VeinNet::NetworkSystem::VNOM_PASS_THROUGH);
-    VeinNet::TcpSystem* tcpSystem = new VeinNet::TcpSystem(mockedVeinNetworkFactory);
-    testRunner.getModManFacade()->addSubsystem(netSystem);
-    testRunner.getModManFacade()->addSubsystem(tcpSystem);
-
-    tcpSystem->startServer(12000);
-
     VeinEntryPtr veinEntry = VeinEntry::create(mockedVeinNetworkFactory);
 
     std::shared_ptr<SubscriptionManager> subscriptionManager = veinEntry->getSubscriptionManager();
@@ -135,5 +113,4 @@ void test_subscription_manager::subscribeTwice()
     QVERIFY(spy.length() == 2);
     QCOMPARE(spy[0][0], true);
     QCOMPARE(spy[1][0], true);
-    tcpSystem->deleteLater(); // remove tcpsystem as it is used in modulemanager and does not clean up properly
 }
