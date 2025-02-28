@@ -79,13 +79,13 @@ int main(int argc, char * argv[])
     // Parse the options that were provided
     parser.process(a);
 
-    /*QString categoryLoggingFormat = "%{if-debug}DD%{endif}%{if-warning}WW%{endif}%{if-critical}EE%{endif}%{if-fatal}FATAL%{endif} %{category} %{message}";
-    QStringList loggingFilters = QStringList() << QString("%1.debug=true").arg(VEIN_EVENT().categoryName()) <<
-                                 QString("%1.debug=true").arg(VEIN_NET_VERBOSE().categoryName()) <<
-                                 QString("%1.debug=true").arg(VEIN_NET_INTRO_VERBOSE().categoryName()) << //< Introspection logging is still enabled
-                                 QString("%1.debug=true").arg(VEIN_NET_TCP_VERBOSE().categoryName());
+    QString categoryLoggingFormat = "%{if-debug}DD%{endif}%{if-warning}WW%{endif}%{if-critical}EE%{endif}%{if-fatal}FATAL%{endif} %{category} %{message}";
+    QStringList loggingFilters = QStringList() << QString("%1.debug=false").arg(VEIN_EVENT().categoryName()) <<
+                                 QString("%1.debug=false").arg(VEIN_NET_VERBOSE().categoryName()) <<
+                                 QString("%1.debug=false").arg(VEIN_NET_INTRO_VERBOSE().categoryName()) << //< Introspection logging is still enabled
+                                 QString("%1.debug=false").arg(VEIN_NET_TCP_VERBOSE().categoryName());
     QLoggingCategory::setFilterRules(loggingFilters.join("\n"));
-    qSetMessagePattern(categoryLoggingFormat);*/
+    qSetMessagePattern(categoryLoggingFormat);
     // Obtain the values
     QHostAddress address = QHostAddress(parser.value(addressOption));
     quint16 port = static_cast<quint16>(parser.value(portOption).toInt());
