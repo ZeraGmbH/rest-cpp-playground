@@ -22,6 +22,7 @@ endfunction()
 SETUP_TESTS(
     test_storage
     test_subscription_manager
+    test_veinentry
 )
 
 target_sources(test_storage
