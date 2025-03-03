@@ -52,6 +52,10 @@ void OAIApiRouter::setUpRoutes() {
         auto reqObj = new OAIVeinApiRequest(socket, mOAIVeinApiHandler);
         reqObj->apiV1VeinPutRequest();
     });
+    Routes.insert(QString("%1 %2").arg("GET").arg("/api/v1/Vein/rpc1").toLower(), [this](QHttpEngine::Socket *socket) {
+        auto reqObj = new OAIVeinApiRequest(socket, mOAIVeinApiHandler);
+        reqObj->apiV1VeinRpc1GetRequest();
+    });
 }
 
 void OAIApiRouter::processRequest(QHttpEngine::Socket *socket){

@@ -10,6 +10,55 @@
     "version": "v1"
   },
   "paths": {
+    "/api/v1/Vein/rpc1": {
+      "get": {
+        "tags": [
+          "Vein"
+        ],
+        "summary": "Triggers an rpc",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "rpc_name",
+            "schema": {
+              "type": "string"
+            },
+            "description": "function name to call"
+          },
+          {
+            "in": "query",
+            "name": "entity_id",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "description": "entity id of rpc"
+          },
+          {
+            "in": "query",
+            "name": "parameters",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "If the rpc could be successfully executed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "boolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/Vein/": {
       "get": {
         "tags": [
