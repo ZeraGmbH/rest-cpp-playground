@@ -158,18 +158,16 @@ void OAIVeinApiHandler::apiV1VeinPost(QList<OAIVeinGetRequest> oai_vein_get_requ
     }
 }
 
-void OAIVeinApiHandler::apiV1VeinRpc1Get(QString rpc_name, qint32 entity_id, QList<QString> parameters) {
-    Q_UNUSED(rpc_name);
-    Q_UNUSED(entity_id);
-    Q_UNUSED(parameters);
+void OAIVeinApiHandler::apiV1VeinRpc1Post(OAIRpcRequest oai_rpc_request) {
+    Q_UNUSED(oai_rpc_request);
     auto reqObj = qobject_cast<OAIVeinApiRequest*>(sender());
     if( reqObj != nullptr )
     {
         bool res;
 
-        //call rpc
+        // call rpc
 
-        reqObj->apiV1VeinRpc1GetResponse(res);
+        reqObj->apiV1VeinRpc1PostResponse(res);
     }
 }
 

@@ -16,6 +16,7 @@
 
 #include "OAIProblemDetails.h"
 #include "OAIVeinGetRequest.h"
+#include "OAIRpcRequest.h"
 #include "OAIVeinGetResponse.h"
 #include "OAIVeinSet.h"
 #include "veinentry.h"
@@ -38,7 +39,7 @@ public slots:
     virtual void apiV1VeinGet(qint32 entity_id, QString component_name);
     virtual void apiV1VeinPost(QList<OAIVeinGetRequest> oai_vein_get_request);
     virtual void apiV1VeinPut(OAIVeinSet oai_vein_set);
-    virtual void apiV1VeinRpc1Get(QString rpc_name, qint32 entity_id, QList<QString> parameters);
+    virtual void apiV1VeinRpc1Post(OAIRpcRequest oai_rpc_request);
 
 private:
     VeinEntryPtr m_veinEntry;

@@ -10,41 +10,22 @@
     "version": "v1"
   },
   "paths": {
-    "/api/v1/Vein/rpc1": {
-      "get": {
+    "/api/v1/Vein/rpc1/": {
+      "post": {
         "tags": [
           "Vein"
         ],
         "summary": "Triggers an rpc",
-        "parameters": [
-          {
-            "in": "query",
-            "name": "rpc_name",
-            "schema": {
-              "type": "string"
-            },
-            "description": "function name to call"
-          },
-          {
-            "in": "query",
-            "name": "entity_id",
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            },
-            "description": "entity id of rpc"
-          },
-          {
-            "in": "query",
-            "name": "parameters",
-            "schema": {
-              "type": "array",
-              "items": {
-                "type": "string"
+        "requestBody": {
+          "description": "object containing relevant information for executing rpc",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RpcRequest"
               }
             }
           }
-        ],
+        },
         "responses": {
           "200": {
             "description": "If the rpc could be successfully executed",
@@ -339,6 +320,40 @@
   },
   "components": {
     "schemas": {
+      "RpcRequest": {
+        "type": "object",
+        "properties": {
+          "EntityId": {
+            "type": "integer",
+            "description": "The Entity Id to request",
+            "format": "int32",
+            "nullable": false
+          },
+          "RpcName": {
+            "type": "string",
+            "description": "The rpc name to execute",
+            "nullable": false
+          },
+          "parameters": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "Key": {
+                  "type": "string",
+                  "description": "The key of the map entry",
+                  "nullable": false
+                },
+                "Value": {
+                  "type": "string",
+                  "description": "The value of the map entry",
+                  "nullable": false
+                }
+              }
+            }
+          }
+        }
+      },
       "VeinGetRequest": {
         "type": "object",
         "properties": {
