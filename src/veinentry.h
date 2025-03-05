@@ -19,7 +19,7 @@ public:
     static std::shared_ptr<VeinEntry> create(VeinTcp::AbstractTcpNetworkFactoryPtr tcpNetworkFactory);
     VeinEntry(VeinTcp::AbstractTcpNetworkFactoryPtr tcpNetworkFactory);
 
-    TaskSimpleVeinSetterPtr setToVein(int entityId, QString componentName, QVariant value);
+    TaskTemplatePtr setToVein(int entityId, QString componentName, QVariant value);
 
     VeinStorage::AbstractDatabase* getStorageDb();
     std::shared_ptr<SubscriptionManager> getSubscriptionManager();

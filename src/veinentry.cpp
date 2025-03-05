@@ -1,4 +1,5 @@
 #include "veinentry.h"
+#include "task_client_component_setter.h"
 
 std::shared_ptr<VeinEntry> VeinEntry::create(VeinTcp::AbstractTcpNetworkFactoryPtr tcpNetworkFactory)
 {
@@ -21,11 +22,29 @@ VeinEntry::VeinEntry(VeinTcp::AbstractTcpNetworkFactoryPtr tcpNetworkFactory) :
     connect(&m_tcpSystem, &VeinNet::TcpSystem::sigConnnectionEstablished, m_subscriptionManager.get(), &SubscriptionManager::startObservingSessionChange);
 }
 
-TaskSimpleVeinSetterPtr VeinEntry::setToVein(int entityId, QString componentName, QVariant value)
+TaskTemplatePtr VeinEntry::setToVein(int entityId, QString componentName, QVariant value)
 {
-    TaskSimpleVeinSetterPtr task = TaskSimpleVeinSetter::create(entityId, componentName, value, m_cmdEventHandlerSystem);
+    /* To set a component the old value needs to be known.
+     * If the storage does not have the old value, execute a full setter task with subscribe->get->set
+     * If it has the old value, only execute a "set", with the old value from the storage, as subscribing again will make the storage error out
+    */
+    if(m_storage.getDb()->hasEntity(entityId)) {
+        VfCmdEventItemEntityPtr entityItem = VfEntityComponentEventItem::create(entityId);
+        m_cmdEventHandlerSystem->addItem(entityItem);
+        TaskTemplatePtr setter = TaskClientComponentSetter::create(entityItem, componentName, m_storage.getDb()->getStoredValue(entityId, componentName), value, 1000, []() {
+            qWarning("Setter Task failed");
+        });
+        connect(setter.get(), &TaskTemplate::sigFinish, this, [this, entityItem](){
+            m_cmdEventHandlerSystem->removeItem(entityItem);
+        });
+        return setter;
+    }
+    else
+    {
+        TaskSimpleVeinSetterPtr task = TaskSimpleVeinSetter::create(entityId, componentName, value, m_cmdEventHandlerSystem);
 
-    return task;
+        return task;
+    }
 }
 
 VeinStorage::AbstractDatabase *VeinEntry::getStorageDb()

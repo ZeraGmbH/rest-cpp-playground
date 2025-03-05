@@ -41,7 +41,7 @@ void test_veinentry::setToVeinTwice()
     VeinTcp::AbstractTcpNetworkFactoryPtr mockedVeinNetworkFactory = VeinTcp::MockTcpNetworkFactory::create();
     VeinEntryPtr veinEntry = VeinEntry::create(mockedVeinNetworkFactory);
 
-    TaskSimpleVeinSetterPtr task = veinEntry->setToVein(1070, "PAR_MeasuringMode", "2LW");
+    TaskTemplatePtr task = veinEntry->setToVein(1070, "PAR_MeasuringMode", "2LW");
 
     QSignalSpy spy(task.get(), &TaskSimpleVeinSetter::sigFinish);
 
@@ -52,7 +52,7 @@ void test_veinentry::setToVeinTwice()
     QVERIFY(spy.length() == 1);
     QCOMPARE(spy[0][0], true);
 
-    TaskSimpleVeinSetterPtr secondTask = veinEntry->setToVein(1070, "PAR_MeasuringMode", "4LW");
+    TaskTemplatePtr secondTask = veinEntry->setToVein(1070, "PAR_MeasuringMode", "4LW");
 
     QSignalSpy secondSpy(secondTask.get(), &TaskSimpleVeinSetter::sigFinish);
 
@@ -62,4 +62,6 @@ void test_veinentry::setToVeinTwice()
 
     QVERIFY(secondSpy.length() == 1);
     QCOMPARE(secondSpy[0][0], true);
+
+    QVERIFY(veinEntry->getStorageDb()->getStoredValue(1070, "PAR_MeasuringMode") == "4LW");
 }

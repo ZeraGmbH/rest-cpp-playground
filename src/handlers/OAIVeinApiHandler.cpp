@@ -121,7 +121,7 @@ void OAIVeinApiHandler::apiV1VeinGet(qint32 entity_id, QString component_name) {
         std::shared_ptr<SubscriptionManager> subscriptionManager = m_veinEntry->getSubscriptionManager();
         QList<int> entitiesRequested = QList<int>() << entity_id;
 
-        auto conn = std::make_shared<QMetaObject::Connection>();
+        std::shared_ptr<QMetaObject::Connection> conn = std::make_shared<QMetaObject::Connection>();
         *conn = connect(subscriptionManager.get(), &SubscriptionManager::finishedSubscribing, this, [&, request, reqObj, conn](bool ok){
             QList<OAIVeinGetResponse> res;
             res = generateBulkAnswer(QList<OAIVeinGetRequest>() << request);
@@ -144,7 +144,7 @@ void OAIVeinApiHandler::apiV1VeinPost(QList<OAIVeinGetRequest> oai_vein_get_requ
         for (const auto &item : oai_vein_get_request)
             if(!entitiesRequested.contains(item.getEntityId()))entitiesRequested.append(item.getEntityId());
 
-        auto conn = std::make_shared<QMetaObject::Connection>();
+        std::shared_ptr<QMetaObject::Connection> conn = std::make_shared<QMetaObject::Connection>();
         *conn = connect(subscriptionManager.get(), &SubscriptionManager::finishedSubscribing, this, [&, oai_vein_get_request, reqObj, conn](bool ok){
             QList<OAIVeinGetResponse> res;
             res = generateBulkAnswer(oai_vein_get_request);
@@ -177,8 +177,8 @@ void OAIVeinApiHandler::apiV1VeinPut(OAIVeinSet oai_vein_set) {
     auto reqObj = qobject_cast<OAIVeinApiRequest*>(sender());
     if( reqObj != nullptr )
     {
-        TaskSimpleVeinSetterPtr task = m_veinEntry->setToVein(oai_vein_set.getEntityId(),oai_vein_set.getComponentName(), oai_vein_set.getNewValue());
-        std::shared_ptr<TaskSimpleVeinSetter> taskSharedPtr = std::move(task);
+        TaskTemplatePtr task = m_veinEntry->setToVein(oai_vein_set.getEntityId(),oai_vein_set.getComponentName(), oai_vein_set.getNewValue());
+        std::shared_ptr<TaskTemplate> taskSharedPtr = std::move(task);
 
         if (!oai_vein_set.is_entity_id_Valid() || !oai_vein_set.is_component_name_Valid() || !oai_vein_set.is_new_value_Valid())
         {
@@ -191,7 +191,7 @@ void OAIVeinApiHandler::apiV1VeinPut(OAIVeinSet oai_vein_set) {
             return;
         }
 
-        auto conn = std::make_shared<QMetaObject::Connection>();
+        std::shared_ptr<QMetaObject::Connection> conn = std::make_shared<QMetaObject::Connection>();
         *conn = connect(taskSharedPtr.get(), &TaskTemplate::sigFinish, this, [conn, reqObj, taskSharedPtr, oai_vein_set](bool ok, int taskId){
             OAIProblemDetails res;
             if (ok)
