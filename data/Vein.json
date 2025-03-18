@@ -32,7 +32,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "boolean"
+                  "$ref": "#/components/schemas/RpcResponse"
                 }
               }
             }
@@ -353,6 +353,32 @@
             }
           }
         }
+      },
+      "RpcResponse" : {
+        "type": "object",
+        "properties" : {
+          "status": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "EntityId": {
+            "type": "integer",
+            "description": "The requested EntityId",
+            "nullable": true
+          },
+          "RPC_Name": {
+            "type": "string",
+            "description": "The requested RPC",
+            "nullable": true
+          },
+          "ReturnInformation": {
+            "type": "string",
+            "description": "The desired return information formated as json",
+            "nullable": false
+          }
+        }
+
       },
       "VeinGetRequest": {
         "type": "object",
