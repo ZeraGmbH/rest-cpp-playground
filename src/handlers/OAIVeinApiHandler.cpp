@@ -108,6 +108,29 @@ QString OAIVeinApiHandler::variantToJsonString(QVariant input)
     return returnValue;
 }
 
+OAIRpcResponse OAIVeinApiHandler::getRPCAnswer(OAIRpcRequest rpc_request, std::shared_ptr<QVariant> result)
+{
+    OAIRpcResponse response;
+    int entityId = rpc_request.getEntityId();
+    QString rpcName = rpc_request.getRpcName();
+    VeinStorage::AbstractDatabase* storage = m_veinEntry->getStorageDb();
+
+    response.setRpcName(rpcName);
+    response.setEntityId(entityId);
+
+    QString returnValue = variantToJsonString(*result);
+    if(returnValue != "null") {
+            response.setReturnInformation(returnValue);
+            response.setStatus(200);
+        }
+    else {
+            response.setReturnInformation("null");
+            response.setStatus(422);
+        }
+    return response;
+
+}
+
 
 void OAIVeinApiHandler::apiV1VeinGet(qint32 entity_id, QString component_name) {
     Q_UNUSED(entity_id);
@@ -159,15 +182,26 @@ void OAIVeinApiHandler::apiV1VeinPost(QList<OAIVeinGetRequest> oai_vein_get_requ
 }
 
 void OAIVeinApiHandler::apiV1VeinRpc1Post(OAIRpcRequest oai_rpc_request) {
-    Q_UNUSED(oai_rpc_request);
     auto reqObj = qobject_cast<OAIVeinApiRequest*>(sender());
     if( reqObj != nullptr )
     {
-        bool res;
-
-        // call rpc
-
-        reqObj->apiV1VeinRpc1PostResponse(res);
+        OAIRpcResponse res;
+        QVariantMap parametersMap;
+        QList<OAIRpcRequest_parameters_inner> parameterList = oai_rpc_request.getParameters();
+        for(int i = 0; i < parameterList.length(); i++) {
+            QString key = parameterList.at(i).getKey();
+            QString value = parameterList.at(i).getValue();
+            parametersMap.insert(key, value);
+        }
+        std::shared_ptr<QVariant> result = std::make_shared<QVariant>();
+        std::shared_ptr<TaskTemplate> taskSharedPtr = m_veinEntry->rpcToVein(oai_rpc_request.getEntityId(), oai_rpc_request.getRpcName(), parametersMap, result);
+        auto conn = std::make_shared<QMetaObject::Connection>();
+        *conn = connect(taskSharedPtr.get(), &TaskTemplate::sigFinish, this, [conn, reqObj, res, taskSharedPtr, oai_rpc_request, result, this](bool ok, int taskId){
+            OAIRpcResponse res = getRPCAnswer(oai_rpc_request, result);
+            reqObj->apiV1VeinRpc1PostResponse(res);
+            disconnect(*conn);
+        });
+        taskSharedPtr->start();
     }
 }
 

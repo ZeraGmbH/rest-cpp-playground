@@ -1,5 +1,6 @@
 #include "veinentry.h"
 #include "task_client_component_setter.h"
+#include "task_client_rpc_invoker.h"
 
 std::shared_ptr<VeinEntry> VeinEntry::create(VeinTcp::AbstractTcpNetworkFactoryPtr tcpNetworkFactory)
 {
@@ -45,6 +46,21 @@ TaskTemplatePtr VeinEntry::setToVein(int entityId, QString componentName, QVaria
 
         return task;
     }
+}
+
+std::shared_ptr<TaskTemplate> VeinEntry::rpcToVein(int entityId, QString rpc_name, QVariantMap parameters, std::shared_ptr<QVariant> result)
+{
+    if(m_storage.getDb()->hasEntity(entityId)) {
+        TaskTemplatePtr task = TaskClientRPCInvoker::create(entityId, rpc_name, parameters, result, m_cmdEventHandlerSystem, 1000, []() {
+            qWarning("Task failed");
+        });
+        std::shared_ptr<TaskTemplate> taskSharedPtr = std::move(task);
+        connect(taskSharedPtr.get(), &TaskTemplate::sigFinish, this, [taskSharedPtr](bool ok, int taskId){
+        });
+        return taskSharedPtr;
+    }
+    else
+        return TaskSimpleVeinRPCInvoker::create(entityId, rpc_name, parameters, result, m_cmdEventHandlerSystem);
 }
 
 VeinStorage::AbstractDatabase *VeinEntry::getStorageDb()
