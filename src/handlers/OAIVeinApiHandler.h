@@ -15,6 +15,7 @@
 #include <QObject>
 
 #include "OAIProblemDetails.h"
+#include "OAIRpcResponse.h"
 #include "OAIVeinGetRequest.h"
 #include "OAIRpcRequest.h"
 #include "OAIVeinGetResponse.h"
@@ -34,6 +35,7 @@ public:
     virtual ~OAIVeinApiHandler();
     QList<OAIVeinGetResponse> generateBulkAnswer(QList<OAIVeinGetRequest> oai_vein_get_request);
     QString variantToJsonString(QVariant input);
+    OAIRpcResponse getRPCAnswer(OAIRpcRequest rpc_request, std::shared_ptr<QVariant> result);
 
 public slots:
     virtual void apiV1VeinGet(qint32 entity_id, QString component_name);
