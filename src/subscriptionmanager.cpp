@@ -1,6 +1,6 @@
 #include "subscriptionmanager.h"
 #include "taskcontainerparallel.h"
-#include "tasksimpleveinentitygetter.h"
+#include "task_client_entity_subscribe.h"
 #include "tasklambdarunner.h"
 
 SubscriptionManager::SubscriptionManager(VfCmdEventHandlerSystemPtr eventHandler) :
@@ -23,8 +23,11 @@ void SubscriptionManager::subscribeToEntities(QList<int> entities)
     for (const auto item : entities)
     {
         if (!m_subscribedEntities.contains(item)) {
-            TaskTemplatePtr getterTask = TaskSimpleVeinEntityGetter::create(item, m_eventHandler, 2000);
-            m_subscriberTask->addSub(std::move(getterTask));
+            TaskTemplatePtr subscriberTask = TaskClientEntitySubscribe::create(item,
+                                                                               m_eventHandler,
+                                                                               std::make_shared<QStringList>(QStringList()),
+                                                                               2000);
+            m_subscriberTask->addSub(std::move(subscriberTask));
             m_subscriptionsInProgress.append(item);
             empty = false;
         }
