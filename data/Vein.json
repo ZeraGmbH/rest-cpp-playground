@@ -36,6 +36,26 @@
                 }
               }
             }
+          },
+          "422": {
+            "description": "If the rpc returns an error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RpcResponse"
+                }
+              }
+            }
+          },
+          "204": {
+            "description": "If the rpc returns an empty value",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RpcResponse"
+                }
+              }
+            }
           }
         }
       }
