@@ -39,4 +39,5 @@ install(FILES
 add_subdirectory(data)
 add_subdirectory(src)
 add_subdirectory(systemd)
+add_subdirectory(testlib)
 add_subdirectory(tests)
