@@ -13,8 +13,10 @@ function(SETUP_TESTS)
         Qt5::Test
         Zera::zera-modulemanager-testlib
         zera-vein-rest-lib
+        zera-vein-rest-testlib
         Zera::dftmodule-demolib
         Zera::module-testlib
+        VeinMeta::vf-logger-testlib
     )
 endforeach()
 endfunction()
@@ -23,6 +25,7 @@ SETUP_TESTS(
     test_storage
     test_subscription_manager
     test_veinentry
+    test_restserver
 )
 
 target_sources(test_storage
