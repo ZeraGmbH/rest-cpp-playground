@@ -16,6 +16,8 @@ private slots:
     void cleanup();
 
     void getVeinComponent();
+    void getVeinComponentInvalidEntityId();
+    void getVeinComponentInvalidComponentName();
 private:
     QJsonObject createCurlRpcParamJson(int entityId, QString rpcName, QMap<QString, QString> rpcParams);
     QJsonObject convertResponseToJson(QVariant response);
