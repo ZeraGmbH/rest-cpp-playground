@@ -60,6 +60,34 @@ void test_restserver::getVeinComponent()
     QCOMPARE(response.value("ReturnInformation"), "\"_LoggingSystem\"");
 }
 
+void test_restserver::getVeinComponentInvalidEntityId()
+{
+    HttpCurlClient curlProcess;
+    QSignalSpy spy(&curlProcess, &HttpCurlClient::processFinished);
+
+    QStringList headers = QStringList() << "accept: application/json";
+    curlProcess.startCurlProcess("GET", httpServerUrl + veinApiUrl + "?entity_id=25&component_name=EntityName", headers);
+
+    SignalSpyWaiter::waitForSignals(&spy, 1, 100);
+    QVERIFY(spy.length() == 1);
+    QJsonObject response = convertResponseToJson(spy[0][0]);
+    QCOMPARE(response.value("status"), 422);
+}
+
+void test_restserver::getVeinComponentInvalidComponentName()
+{
+    HttpCurlClient curlProcess;
+    QSignalSpy spy(&curlProcess, &HttpCurlClient::processFinished);
+
+    QStringList headers = QStringList() << "accept: application/json";
+    curlProcess.startCurlProcess("GET", httpServerUrl + veinApiUrl + "?entity_id=2&component_name=EntityNamee", headers);
+
+    SignalSpyWaiter::waitForSignals(&spy, 1, 100);
+    QVERIFY(spy.length() == 1);
+    QJsonObject response = convertResponseToJson(spy[0][0]);
+    QCOMPARE(response.value("status"), 422);
+}
+
 QJsonObject test_restserver::createCurlRpcParamJson(int entityId, QString rpcName, QMap<QString, QString> rpcParams)
 {
     QJsonArray rpcParamsJson;
