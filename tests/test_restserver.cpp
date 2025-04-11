@@ -47,44 +47,25 @@ void test_restserver::cleanup()
 
 void test_restserver::getVeinComponent()
 {
-    HttpCurlClient curlProcess;
-    QSignalSpy spy(&curlProcess, &HttpCurlClient::processFinished);
-
     QStringList headers = QStringList() << "accept: application/json";
-    curlProcess.startCurlProcess("GET", httpServerUrl + veinApiUrl + "?entity_id=2&component_name=EntityName", headers);
-
-    SignalSpyWaiter::waitForSignals(&spy, 1, 100);
-    QVERIFY(spy.length() == 1);
-    QJsonObject response = convertResponseToJson(spy[0][0]);
+    QJsonObject response = invokeCurlClient("GET", headers, 2, "EntityName");
     QCOMPARE(response.value("status"), 200);
     QCOMPARE(response.value("ReturnInformation"), "\"_LoggingSystem\"");
+    QCOMPARE(response.value("EntityId"), 2);
+    QCOMPARE(response.value("ComponentName"), "EntityName");
 }
 
 void test_restserver::getVeinComponentInvalidEntityId()
 {
-    HttpCurlClient curlProcess;
-    QSignalSpy spy(&curlProcess, &HttpCurlClient::processFinished);
-
     QStringList headers = QStringList() << "accept: application/json";
-    curlProcess.startCurlProcess("GET", httpServerUrl + veinApiUrl + "?entity_id=25&component_name=EntityName", headers);
-
-    SignalSpyWaiter::waitForSignals(&spy, 1, 100);
-    QVERIFY(spy.length() == 1);
-    QJsonObject response = convertResponseToJson(spy[0][0]);
+    QJsonObject response = invokeCurlClient("GET", headers, 25, "EntityName");
     QCOMPARE(response.value("status"), 422);
 }
 
 void test_restserver::getVeinComponentInvalidComponentName()
 {
-    HttpCurlClient curlProcess;
-    QSignalSpy spy(&curlProcess, &HttpCurlClient::processFinished);
-
     QStringList headers = QStringList() << "accept: application/json";
-    curlProcess.startCurlProcess("GET", httpServerUrl + veinApiUrl + "?entity_id=2&component_name=EntityNamee", headers);
-
-    SignalSpyWaiter::waitForSignals(&spy, 1, 100);
-    QVERIFY(spy.length() == 1);
-    QJsonObject response = convertResponseToJson(spy[0][0]);
+    QJsonObject response = invokeCurlClient("GET", headers, 25, "foo");
     QCOMPARE(response.value("status"), 422);
 }
 
@@ -107,4 +88,17 @@ QJsonObject test_restserver::createCurlRpcParamJson(int entityId, QString rpcNam
 QJsonObject test_restserver::convertResponseToJson(QVariant response)
 {
     return QJsonDocument::fromJson(response.toByteArray()).object();
+}
+
+QJsonObject test_restserver::invokeCurlClient(QString requestType, QStringList headers, int entityId, QString componentName)
+{
+    HttpCurlClient curlProcess;
+    QSignalSpy spy(&curlProcess, &HttpCurlClient::processFinished);
+    QString url = httpServerUrl + veinApiUrl;
+    if(entityId != -1)
+        url += "?entity_id=" + QString::number(entityId) + "&component_name=" + componentName;
+    curlProcess.startCurlProcess(requestType, url, headers);
+
+    SignalSpyWaiter::waitForSignals(&spy, 1, 100);
+    return convertResponseToJson(spy[0][0]);
 }
