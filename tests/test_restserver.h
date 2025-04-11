@@ -1,6 +1,7 @@
 #ifndef TEST_RESTSERVER_H
 #define TEST_RESTSERVER_H
 
+#include "httpserversetup.h"
 #include "vn_tcpsystem.h"
 #include <testloggersystem.h>
 #include <QMap>
@@ -19,6 +20,7 @@ private:
     QJsonObject createCurlRpcParamJson(int entityId, QString rpcName, QMap<QString, QString> rpcParams);
     QJsonObject convertResponseToJson(QVariant response);
     TestLoggerSystem m_testLogger;
+    std::unique_ptr<HttpServerSetup> m_httpServer;
     VeinNet::TcpSystem* m_tcpSystem;
 };
 

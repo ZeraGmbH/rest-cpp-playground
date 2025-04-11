@@ -1,5 +1,4 @@
 #include "test_restserver.h"
-#include "httpserversetup.h"
 #include "httpcurlclient.h"
 #include <mocktcpnetworkfactory.h>
 #include <signalspywaiter.h>
@@ -33,22 +32,21 @@ void test_restserver::init()
     m_testLogger.appendEventSystem(m_tcpSystem);
 
     m_tcpSystem->startServer(12000);
+
+    m_httpServer = std::make_unique<HttpServerSetup>(VeinTcp::MockTcpNetworkFactory::create());
+    TimeMachineObject::feedEventLoop();
+    m_httpServer->startListening(QHostAddress(httpServerAddress), httpServerPort);
 }
 
 void test_restserver::cleanup()
 {
+    m_httpServer.reset();
     m_testLogger.cleanup();
     m_tcpSystem->deleteLater();
 }
 
 void test_restserver::getVeinComponent()
 {
-    VeinTcp::AbstractTcpNetworkFactoryPtr mockedVeinNetworkFactory = VeinTcp::MockTcpNetworkFactory::create();
-    HttpServerSetup server(mockedVeinNetworkFactory);
-    TimeMachineObject::feedEventLoop();
-
-    QVERIFY(server.startListening(QHostAddress(httpServerAddress), httpServerPort));
-
     HttpCurlClient curlProcess;
     QSignalSpy spy(&curlProcess, &HttpCurlClient::processFinished);
 
