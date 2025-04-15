@@ -107,6 +107,18 @@ void test_restserver::setVeinComponentInvalidComponentName()
     QCOMPARE(response.value("status"), 422);
 }
 
+void test_restserver::getBulkVeinComponent()
+{
+    QStringList headers = QStringList() << "accept: application/json" << "Content-Type: application/json";
+    QJsonObject obj;
+    obj.insert("EntityID", 0);
+    obj.insert("ComponentName", "Session");
+    QJsonArray params;
+    params.append(obj);
+    QJsonArray response = invokeCurlClientForPost("POST", headers, params);
+    //QCOMPARE(response.value("status"), 200);
+}
+
 QJsonObject test_restserver::createCurlRpcParamJson(int entityId, QString rpcName, QMap<QString, QString> rpcParams)
 {
     QJsonArray rpcParamsJson;
@@ -135,8 +147,19 @@ QJsonObject test_restserver::invokeCurlClient(QString requestType, QStringList h
     QString url = httpServerUrl + veinApiUrl;
     if(entityId != -1)
         url += "?entity_id=" + QString::number(entityId) + "&component_name=" + componentName;
-    curlProcess.startCurlProcess(requestType, url, headers, paramsJson);
+    curlProcess.startCurlProcess(requestType, url, headers, false, QJsonArray(), paramsJson);
 
     SignalSpyWaiterWithProcessTimers::waitForSignals(&spy, 1, 1000);
     return convertResponseToJson(spy[0][0]);
+}
+
+QJsonArray test_restserver::invokeCurlClientForPost(QString requestType, QStringList headers, QJsonArray paramsJson)
+{
+    HttpCurlClient curlProcess;
+    QSignalSpy spy(&curlProcess, &HttpCurlClient::processFinished);
+    QString url = httpServerUrl + veinApiUrl;
+    curlProcess.startCurlProcess(requestType, url, headers, true, paramsJson);
+    SignalSpyWaiterWithProcessTimers::waitForSignals(&spy, 1, 1000);
+    QVariant response = spy[0][0];
+    return response.toJsonArray();
 }
