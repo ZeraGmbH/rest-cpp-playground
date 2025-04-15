@@ -1,7 +1,7 @@
 #include "test_restserver.h"
 #include "httpcurlclient.h"
 #include <mocktcpnetworkfactory.h>
-#include <signalspywaiter.h>
+#include <signalspywaiterwithprocesstimers.h>
 #include <qsignalspy.h>
 #include <timemachinefortest.h>
 #include <timerfactoryqtfortest.h>
@@ -137,6 +137,6 @@ QJsonObject test_restserver::invokeCurlClient(QString requestType, QStringList h
         url += "?entity_id=" + QString::number(entityId) + "&component_name=" + componentName;
     curlProcess.startCurlProcess(requestType, url, headers, paramsJson);
 
-    SignalSpyWaiter::waitForSignals(&spy, 1, 100);
+    SignalSpyWaiterWithProcessTimers::waitForSignals(&spy, 1, 1000);
     return convertResponseToJson(spy[0][0]);
 }
