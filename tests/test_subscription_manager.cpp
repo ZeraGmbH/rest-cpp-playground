@@ -6,7 +6,6 @@
 #include <mocktcpnetworkfactory.h>
 #include <timemachinefortest.h>
 #include <timerfactoryqtfortest.h>
-#include <modulemanagertestrunner.h>
 
 QTEST_MAIN(test_subscription_manager)
 
@@ -17,22 +16,21 @@ void test_subscription_manager::initTestCase()
 
 void test_subscription_manager::init()
 {
-    const QString sessionConfig = ZeraModules::ModuleManager::getInstalledSessionPath() + "/mt310s2-emob-session-ac.json";
-    m_testRunner = std::make_unique<ModuleManagerTestRunner>(sessionConfig);
-    VeinTcp::AbstractTcpNetworkFactoryPtr mockedVeinNetworkFactory = VeinTcp::MockTcpNetworkFactory::create();
-    m_tcpSystem = new VeinNet::TcpSystem(mockedVeinNetworkFactory);
+    m_tcpSystem = new VeinNet::TcpSystem(VeinTcp::MockTcpNetworkFactory::create());
     VeinNet::NetworkSystem* netSystem = new VeinNet::NetworkSystem();
     netSystem->setOperationMode(VeinNet::NetworkSystem::VNOM_PASS_THROUGH);
 
-    m_testRunner->getModManFacade()->addSubsystem(netSystem);
-    m_testRunner->getModManFacade()->addSubsystem(m_tcpSystem);
+    m_testLogger.setupServer(2, 2);
+    m_testLogger.loadDatabase();
+    m_testLogger.appendEventSystem(netSystem);
+    m_testLogger.appendEventSystem(m_tcpSystem);
 
     m_tcpSystem->startServer(12000);
 }
 
 void test_subscription_manager::cleanup()
 {
-    m_testRunner.reset();
+    m_testLogger.cleanup();
     m_tcpSystem->deleteLater();
 }
 
@@ -54,7 +52,7 @@ void test_subscription_manager::subscribeValidEntityAndFetchValidComponent()
     request.setComponentName("SessionsAvailable");
     QList<OpenAPI::OAIVeinGetResponse> response = handler.generateBulkAnswer(QList<OpenAPI::OAIVeinGetRequest>() << request);
 
-    QCOMPARE(response[0].getReturnInformation(), "[\"mt310s2-meas-session.json\",\"mt310s2-emob-session-ac.json\",\"mt310s2-emob-session-dc.json\",\"mt310s2-dc-session.json\"]");
+    QCOMPARE(response[0].getReturnInformation(), "[\"test-session1.json\",\"test-session2.json\"]");
 }
 
 void test_subscription_manager::subscribeInvalidEntity()
@@ -90,6 +88,14 @@ void test_subscription_manager::subscribeValidEntityContainingInvalidComponents(
 
     QVERIFY(spy.length() == 1);
     QCOMPARE(spy[0][0], true);
+
+    OpenAPI::OAIVeinApiHandler handler(veinEntry);
+    OpenAPI::OAIVeinGetRequest request;
+    request.setEntityId(0);
+    request.setComponentName("foo");
+    QList<OpenAPI::OAIVeinGetResponse> response = handler.generateBulkAnswer(QList<OpenAPI::OAIVeinGetRequest>() << request);
+
+    QCOMPARE(response[0].getStatus(), 422);
 }
 
 void test_subscription_manager::subscribeTwice()
