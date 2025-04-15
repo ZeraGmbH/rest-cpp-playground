@@ -19,7 +19,7 @@ find_package(qhttpengine REQUIRED)
 find_package(PkgConfig REQUIRED)
 find_package(VeinFramework REQUIRED)
 find_package(ZenuxCore REQUIRED)
-find_package(ZeraClasses)
+find_package(VfLogger REQUIRED)
 pkg_check_modules(Systemd REQUIRED libsystemd)
 
 enable_testing()

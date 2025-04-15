@@ -11,11 +11,8 @@ function(SETUP_TESTS)
     target_link_libraries(${_testname}
         PUBLIC
         Qt5::Test
-        Zera::zera-modulemanager-testlib
         zera-vein-rest-lib
         zera-vein-rest-testlib
-        Zera::dftmodule-demolib
-        Zera::module-testlib
         VeinMeta::vf-logger-testlib
     )
 endforeach()
