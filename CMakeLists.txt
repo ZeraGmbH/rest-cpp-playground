@@ -22,6 +22,8 @@ find_package(ZenuxCore REQUIRED)
 find_package(ZeraClasses)
 pkg_check_modules(Systemd REQUIRED libsystemd)
 
+enable_testing()
+
 write_basic_package_version_file(
     ${PROJECT_NAME}ConfigVersion.cmake
     VERSION ${PACKAGE_VERSION}
