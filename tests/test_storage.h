@@ -1,8 +1,8 @@
 #ifndef TEST_STORAGE_H
 #define TEST_STORAGE_H
 
-#include "modulemanagertestrunner.h"
 #include "vn_tcpsystem.h"
+#include <testloggersystem.h>
 #include <QObject>
 
 class test_storage : public QObject
@@ -16,7 +16,7 @@ private slots:
     void get_multiple_values();
 
 private:
-    std::unique_ptr<ModuleManagerTestRunner> m_testRunner;
+    TestLoggerSystem m_testLogger;
     VeinNet::TcpSystem* m_tcpSystem;
 };
 
