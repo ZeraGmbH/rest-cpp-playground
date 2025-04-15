@@ -17,22 +17,21 @@ void test_veinentry::initTestCase()
 
 void test_veinentry::init()
 {
-    const QString sessionConfig = ZeraModules::ModuleManager::getInstalledSessionPath() + "/mt310s2-emob-session-ac.json";
-    m_testRunner = std::make_unique<ModuleManagerTestRunner>(sessionConfig);
-    VeinTcp::AbstractTcpNetworkFactoryPtr mockedVeinNetworkFactory = VeinTcp::MockTcpNetworkFactory::create();
-    m_tcpSystem = new VeinNet::TcpSystem(mockedVeinNetworkFactory);
+    m_tcpSystem = new VeinNet::TcpSystem(VeinTcp::MockTcpNetworkFactory::create());
     VeinNet::NetworkSystem* netSystem = new VeinNet::NetworkSystem();
     netSystem->setOperationMode(VeinNet::NetworkSystem::VNOM_PASS_THROUGH);
 
-    m_testRunner->getModManFacade()->addSubsystem(netSystem);
-    m_testRunner->getModManFacade()->addSubsystem(m_tcpSystem);
+    m_testLogger.setupServer(2, 2);
+    m_testLogger.loadDatabase();
+    m_testLogger.appendEventSystem(netSystem);
+    m_testLogger.appendEventSystem(m_tcpSystem);
 
     m_tcpSystem->startServer(12000);
 }
 
 void test_veinentry::cleanup()
 {
-    m_testRunner.reset();
+    m_testLogger.cleanup();
     m_tcpSystem->deleteLater();
 }
 
@@ -41,7 +40,7 @@ void test_veinentry::setToVeinTwice()
     VeinTcp::AbstractTcpNetworkFactoryPtr mockedVeinNetworkFactory = VeinTcp::MockTcpNetworkFactory::create();
     VeinEntryPtr veinEntry = VeinEntry::create(mockedVeinNetworkFactory);
 
-    TaskTemplatePtr task = veinEntry->setToVein(1070, "PAR_MeasuringMode", "2LW");
+    TaskTemplatePtr task = veinEntry->setToVein(2, "sessionName", "foo");
 
     QSignalSpy spy(task.get(), &TaskSimpleVeinSetter::sigFinish);
 
@@ -52,7 +51,7 @@ void test_veinentry::setToVeinTwice()
     QVERIFY(spy.length() == 1);
     QCOMPARE(spy[0][0], true);
 
-    TaskTemplatePtr secondTask = veinEntry->setToVein(1070, "PAR_MeasuringMode", "4LW");
+    TaskTemplatePtr secondTask = veinEntry->setToVein(2, "sessionName", "bar");
 
     QSignalSpy secondSpy(secondTask.get(), &TaskSimpleVeinSetter::sigFinish);
 
@@ -63,5 +62,5 @@ void test_veinentry::setToVeinTwice()
     QVERIFY(secondSpy.length() == 1);
     QCOMPARE(secondSpy[0][0], true);
 
-    QVERIFY(veinEntry->getStorageDb()->getStoredValue(1070, "PAR_MeasuringMode") == "4LW");
+    QVERIFY(veinEntry->getStorageDb()->getStoredValue(2, "sessionName") == "bar");
 }

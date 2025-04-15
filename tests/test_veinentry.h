@@ -1,7 +1,7 @@
 #ifndef TEST_VEINENTRY_H
 #define TEST_VEINENTRY_H
 
-#include "modulemanagertestrunner.h"
+#include <testloggersystem.h>
 #include "vn_tcpsystem.h"
 #include <QObject>
 
@@ -15,8 +15,8 @@ private slots:
     void setToVeinTwice();
 
 private:
-    std::unique_ptr<ModuleManagerTestRunner> m_testRunner;
     VeinNet::TcpSystem* m_tcpSystem;
+    TestLoggerSystem m_testLogger;
 };
 
 #endif // TEST_VEINENTRY_H
