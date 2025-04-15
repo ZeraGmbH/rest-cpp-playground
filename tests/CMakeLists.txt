@@ -24,7 +24,3 @@ SETUP_TESTS(
     test_veinentry
     test_restserver
 )
-
-target_sources(test_storage
-  PRIVATE
-)
