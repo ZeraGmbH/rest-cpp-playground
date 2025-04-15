@@ -1,8 +1,8 @@
 #ifndef TEST_SUBSCRIPTION_MANAGER_H
 #define TEST_SUBSCRIPTION_MANAGER_H
 
-#include "modulemanagertestrunner.h"
 #include "vn_tcpsystem.h"
+#include <testloggersystem.h>
 #include <QObject>
 
 class test_subscription_manager : public QObject
@@ -18,9 +18,8 @@ private slots:
     void subscribeTwice();
 
 private:
-    std::unique_ptr<ModuleManagerTestRunner> m_testRunner;
+    TestLoggerSystem m_testLogger;
     VeinNet::TcpSystem* m_tcpSystem;
-
 };
 
 #endif // TEST_SUBSCRIPTION_MANAGER_H
