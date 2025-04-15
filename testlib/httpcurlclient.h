@@ -3,6 +3,7 @@
 
 #include <QProcess>
 #include <QJsonObject>
+#include <QJsonArray>
 #include <QObject>
 
 class HttpCurlClient : public QObject
@@ -10,7 +11,7 @@ class HttpCurlClient : public QObject
     Q_OBJECT
 public:
     HttpCurlClient();
-    void startCurlProcess(QString requestType, QString URL, QStringList headers, const QJsonObject &paramsJson = QJsonObject());
+    void startCurlProcess(QString requestType, QString URL, QStringList headers, bool postCommand, const QJsonArray &paramsArray = QJsonArray(), const QJsonObject &paramsJson = QJsonObject());
 signals:
     void processFinished(QByteArray responseData);
 private:

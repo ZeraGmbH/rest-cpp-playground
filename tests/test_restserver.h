@@ -21,10 +21,13 @@ private slots:
     void setVeinComponent();
     void setVeinComponentInvalidEntityId();
     void setVeinComponentInvalidComponentName();
+    void getBulkVeinComponent();
+
 private:
     QJsonObject createCurlRpcParamJson(int entityId, QString rpcName, QMap<QString, QString> rpcParams);
     QJsonObject convertResponseToJson(QVariant response);
     QJsonObject invokeCurlClient(QString requestType, QStringList headers, int entityId = -1, QString componentName = QString(), const QJsonObject &paramsJson = QJsonObject());
+    QJsonArray invokeCurlClientForPost(QString requestType, QStringList headers, QJsonArray paramsJson);
     TestLoggerSystem m_testLogger;
     std::unique_ptr<HttpServerSetup> m_httpServer;
     VeinNet::TcpSystem* m_tcpSystem;

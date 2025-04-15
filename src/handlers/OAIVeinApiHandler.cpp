@@ -176,7 +176,8 @@ void OAIVeinApiHandler::apiV1VeinPost(QList<OAIVeinGetRequest> oai_vein_get_requ
         std::shared_ptr<SubscriptionManager> subscriptionManager = m_veinEntry->getSubscriptionManager();
         QList<int> entitiesRequested;
         for (const auto &item : oai_vein_get_request)
-            if(!entitiesRequested.contains(item.getEntityId()))entitiesRequested.append(item.getEntityId());
+            if(!entitiesRequested.contains(item.getEntityId()))
+                entitiesRequested.append(item.getEntityId());
 
         std::shared_ptr<QMetaObject::Connection> conn = std::make_shared<QMetaObject::Connection>();
         *conn = connect(subscriptionManager.get(), &SubscriptionManager::finishedSubscribing, this, [&, oai_vein_get_request, reqObj, conn](bool ok){
