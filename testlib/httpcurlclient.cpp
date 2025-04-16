@@ -8,21 +8,21 @@ HttpCurlClient::HttpCurlClient()
     });
 }
 
-void HttpCurlClient::startCurlProcess(QString requestType, QString URL, QStringList headers, bool postCommand, const QJsonArray &paramsArray, const QJsonObject &paramsJson)
+void HttpCurlClient::startCurlProcess(CurlArguments curlArgs)
 {
     QStringList headersList;
-    for(QString header: headers) {
+    for(QString header: curlArgs.headers) {
         headersList.append("-H");
         headersList.append(header);
     }
-    QStringList arguments = QStringList() << "-X" << requestType << URL << headersList;
+    QStringList arguments = QStringList() << "-X" << curlArgs.requestType << curlArgs.URL << headersList;
 
-    if(postCommand) {
-        if(!paramsArray.isEmpty()) {
+    if(curlArgs.postCommand) {
+        if(!curlArgs.paramsArray.isEmpty()) {
             arguments.append("-d");
             arguments.append("[");
-            for(int i = 0; i < paramsArray.count(); i++) {
-                QJsonObject obj = paramsArray.at(i).toObject();
+            for(int i = 0; i < curlArgs.paramsArray.count(); i++) {
+                QJsonObject obj = curlArgs.paramsArray.at(i).toObject();
                 QJsonDocument tempDoc(obj);
                 QString paramsStr = QString(tempDoc.toJson());
                 arguments.append(paramsStr);
@@ -31,8 +31,8 @@ void HttpCurlClient::startCurlProcess(QString requestType, QString URL, QStringL
         }
     }
     else {
-        if(!paramsJson.isEmpty()) {
-            QJsonDocument tempDoc(paramsJson);
+        if(!curlArgs.paramsJson.isEmpty()) {
+            QJsonDocument tempDoc(curlArgs.paramsJson);
             QString paramsStr = QString(tempDoc.toJson());
             arguments.append("-d");
             arguments.append(paramsStr);
