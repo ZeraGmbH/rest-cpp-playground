@@ -23,6 +23,7 @@ public:
 signals:
     void processFinished(QByteArray responseData);
 private:
+    QString jsonObjtoString(QJsonObject jsonObj);
     QProcess m_curlProcess;
 };
 
