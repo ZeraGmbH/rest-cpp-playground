@@ -21,22 +21,22 @@ void HttpCurlClient::startCurlProcess(CurlArguments curlArgs)
         if(!curlArgs.paramsArray.isEmpty()) {
             arguments.append("-d");
             arguments.append("[");
-            for(int i = 0; i < curlArgs.paramsArray.count(); i++) {
-                QJsonObject obj = curlArgs.paramsArray.at(i).toObject();
-                QJsonDocument tempDoc(obj);
-                QString paramsStr = QString(tempDoc.toJson());
-                arguments.append(paramsStr);
-            }
+            for(int i = 0; i < curlArgs.paramsArray.count(); i++)
+                arguments.append(jsonObjtoString(curlArgs.paramsArray.at(i).toObject()));
             arguments.append("]");
         }
     }
     else {
         if(!curlArgs.paramsJson.isEmpty()) {
-            QJsonDocument tempDoc(curlArgs.paramsJson);
-            QString paramsStr = QString(tempDoc.toJson());
             arguments.append("-d");
-            arguments.append(paramsStr);
+            arguments.append(jsonObjtoString(curlArgs.paramsJson));
         }
     }
     m_curlProcess.start("/bin/curl", arguments);
+}
+
+QString HttpCurlClient::jsonObjtoString(QJsonObject jsonObj)
+{
+    QJsonDocument tempDoc(jsonObj);
+    return QString(tempDoc.toJson());
 }
