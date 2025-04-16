@@ -17,20 +17,16 @@ void HttpCurlClient::startCurlProcess(CurlArguments curlArgs)
     }
     QStringList arguments = QStringList() << "-X" << curlArgs.requestType << curlArgs.URL << headersList;
 
-    if(curlArgs.postCommand) {
-        if(!curlArgs.paramsArray.isEmpty()) {
-            arguments.append("-d");
-            arguments.append("[");
-            for(int i = 0; i < curlArgs.paramsArray.count(); i++)
-                arguments.append(jsonObjtoString(curlArgs.paramsArray.at(i).toObject()));
-            arguments.append("]");
-        }
+    if(!curlArgs.paramsJsonArray.isEmpty()) {
+        arguments.append("-d");
+        arguments.append("[");
+        for(int i = 0; i < curlArgs.paramsJsonArray.count(); i++)
+            arguments.append(jsonObjtoString(curlArgs.paramsJsonArray.at(i).toObject()));
+        arguments.append("]");
     }
-    else {
-        if(!curlArgs.paramsJson.isEmpty()) {
-            arguments.append("-d");
-            arguments.append(jsonObjtoString(curlArgs.paramsJson));
-        }
+    if(!curlArgs.paramsJsonObj.isEmpty()) {
+        arguments.append("-d");
+        arguments.append(jsonObjtoString(curlArgs.paramsJsonObj));
     }
     m_curlProcess.start("/bin/curl", arguments);
 }
