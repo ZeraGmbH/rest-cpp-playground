@@ -140,7 +140,7 @@ QJsonObject test_restserver::convertResponseToJson(QVariant response)
     return QJsonDocument::fromJson(response.toByteArray()).object();
 }
 
-QJsonObject test_restserver::invokeCurlClient(QString requestType, QStringList headers, int entityId, QString componentName, const QJsonObject &paramsJson)
+QJsonObject test_restserver::invokeCurlClient(QString requestType, QStringList headers, int entityId, QString componentName, const QJsonObject &paramsJsonObj)
 {
     HttpCurlClient curlProcess;
     QSignalSpy spy(&curlProcess, &HttpCurlClient::processFinished);
@@ -152,9 +152,8 @@ QJsonObject test_restserver::invokeCurlClient(QString requestType, QStringList h
         requestType,
         url,
         headers,
-        false,
         QJsonArray(),
-        paramsJson
+        paramsJsonObj
     };
     curlProcess.startCurlProcess(curlArgs);
 
@@ -162,7 +161,7 @@ QJsonObject test_restserver::invokeCurlClient(QString requestType, QStringList h
     return convertResponseToJson(spy[0][0]);
 }
 
-QJsonArray test_restserver::invokeCurlClientForPost(QString requestType, QStringList headers, QJsonArray paramsJson)
+QJsonArray test_restserver::invokeCurlClientForPost(QString requestType, QStringList headers, QJsonArray paramsJsonArray)
 {
     HttpCurlClient curlProcess;
     QSignalSpy spy(&curlProcess, &HttpCurlClient::processFinished);
@@ -171,8 +170,7 @@ QJsonArray test_restserver::invokeCurlClientForPost(QString requestType, QString
         requestType,
         url,
         headers,
-        true,
-        paramsJson,
+        paramsJsonArray,
         QJsonObject()
     };
     curlProcess.startCurlProcess(curlArgs);
