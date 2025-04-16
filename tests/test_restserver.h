@@ -26,8 +26,8 @@ private slots:
 private:
     QJsonObject createCurlRpcParamJson(int entityId, QString rpcName, QMap<QString, QString> rpcParams);
     QJsonObject convertResponseToJson(QVariant response);
-    QJsonObject invokeCurlClient(QString requestType, QStringList headers, int entityId = -1, QString componentName = QString(), const QJsonObject &paramsJsonObj = QJsonObject());
-    QJsonArray invokeCurlClientForPost(QString requestType, QStringList headers, QJsonArray paramsJsonArray);
+    QVariant invokeCurlClient(QString requestType, QStringList headers, QString urlExtension, QJsonArray paramsJsonArray, QJsonObject paramsJsonObj);
+    QString prepareUrlExtension(int entityId, QString componentName);
     TestLoggerSystem m_testLogger;
     std::unique_ptr<HttpServerSetup> m_httpServer;
     VeinNet::TcpSystem* m_tcpSystem;

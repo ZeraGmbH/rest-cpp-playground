@@ -48,25 +48,28 @@ void test_restserver::cleanup()
 void test_restserver::getVeinComponent()
 {
     QStringList headers = QStringList() << "accept: application/json";
-    QJsonObject response = invokeCurlClient("GET", headers, 2, "EntityName");
-    QCOMPARE(response.value("status"), 200);
-    QCOMPARE(response.value("ReturnInformation"), "\"_LoggingSystem\"");
-    QCOMPARE(response.value("EntityId"), 2);
-    QCOMPARE(response.value("ComponentName"), "EntityName");
+    QVariant response = invokeCurlClient("GET", headers, prepareUrlExtension(2, "EntityName"), QJsonArray(), QJsonObject());
+    QJsonObject responseJson = convertResponseToJson(response);
+    QCOMPARE(responseJson.value("status"), 200);
+    QCOMPARE(responseJson.value("ReturnInformation"), "\"_LoggingSystem\"");
+    QCOMPARE(responseJson.value("EntityId"), 2);
+    QCOMPARE(responseJson.value("ComponentName"), "EntityName");
 }
 
 void test_restserver::getVeinComponentInvalidEntityId()
 {
     QStringList headers = QStringList() << "accept: application/json";
-    QJsonObject response = invokeCurlClient("GET", headers, 25, "EntityName");
-    QCOMPARE(response.value("status"), 422);
+    QVariant response = invokeCurlClient("GET", headers, prepareUrlExtension(25, "EntityName"), QJsonArray(), QJsonObject());
+    QJsonObject responseJson = convertResponseToJson(response);
+    QCOMPARE(responseJson.value("status"), 422);
 }
 
 void test_restserver::getVeinComponentInvalidComponentName()
 {
     QStringList headers = QStringList() << "accept: application/json";
-    QJsonObject response = invokeCurlClient("GET", headers, 25, "foo");
-    QCOMPARE(response.value("status"), 422);
+    QVariant response = invokeCurlClient("GET", headers, prepareUrlExtension(25, "foo"), QJsonArray(), QJsonObject());
+    QJsonObject responseJson = convertResponseToJson(response);
+    QCOMPARE(responseJson.value("status"), 422);
 }
 
 void test_restserver::setVeinComponent()
@@ -76,13 +79,15 @@ void test_restserver::setVeinComponent()
     params.insert("EntityID", 2);
     params.insert("componentName", "sessionName");
     params.insert("newValue", "ses01");
-    QJsonObject response = invokeCurlClient("PUT", headers, -1, "", params);
-    QCOMPARE(response.value("status"), 200);
+    QVariant response = invokeCurlClient("PUT", headers, "", QJsonArray(), params);
+    QJsonObject responseJson = convertResponseToJson(response);
+    QCOMPARE(responseJson.value("status"), 200);
 
     headers = QStringList() << "accept: application/json";
-    response = invokeCurlClient("GET", headers, 2, "sessionName");
-    QCOMPARE(response.value("status"), 200);
-    QCOMPARE(response.value("ReturnInformation"), "\"ses01\"");
+    response = invokeCurlClient("GET", headers, prepareUrlExtension(2, "sessionName"), QJsonArray(), QJsonObject());
+    responseJson = convertResponseToJson(response);
+    QCOMPARE(responseJson.value("status"), 200);
+    QCOMPARE(responseJson.value("ReturnInformation"), "\"ses01\"");
 }
 
 void test_restserver::setVeinComponentInvalidEntityId()
@@ -92,8 +97,9 @@ void test_restserver::setVeinComponentInvalidEntityId()
     params.insert("EntityID", 25);
     params.insert("componentName", "sessionName");
     params.insert("newValue", "ses01");
-    QJsonObject response = invokeCurlClient("PUT", headers, -1, "", params);
-    QCOMPARE(response.value("status"), 422);
+    QVariant response = invokeCurlClient("PUT", headers, "", QJsonArray(), params);
+    QJsonObject responseJson = convertResponseToJson(response);
+    QCOMPARE(responseJson.value("status"), 422);
 }
 
 void test_restserver::setVeinComponentInvalidComponentName()
@@ -103,8 +109,9 @@ void test_restserver::setVeinComponentInvalidComponentName()
     params.insert("EntityID", 2);
     params.insert("componentName", "foo");
     params.insert("newValue", "ses01");
-    QJsonObject response = invokeCurlClient("PUT", headers, -1, "", params);
-    QCOMPARE(response.value("status"), 422);
+    QVariant response = invokeCurlClient("PUT", headers, "", QJsonArray(), params);
+    QJsonObject responseJson = convertResponseToJson(response);
+    QCOMPARE(responseJson.value("status"), 422);
 }
 
 void test_restserver::getBulkVeinComponent()
@@ -115,8 +122,9 @@ void test_restserver::getBulkVeinComponent()
     obj.insert("ComponentName", "Session");
     QJsonArray params;
     params.append(obj);
-    QJsonArray response = invokeCurlClientForPost("POST", headers, params);
-    //QCOMPARE(response.value("status"), 200);
+    QVariant response = invokeCurlClient("POST", headers, "", params, QJsonObject());
+    QJsonArray responseJson = response.toJsonArray();
+    //QCOMPARE(responseJson.value("status"), 200);
 }
 
 QJsonObject test_restserver::createCurlRpcParamJson(int entityId, QString rpcName, QMap<QString, QString> rpcParams)
@@ -140,41 +148,24 @@ QJsonObject test_restserver::convertResponseToJson(QVariant response)
     return QJsonDocument::fromJson(response.toByteArray()).object();
 }
 
-QJsonObject test_restserver::invokeCurlClient(QString requestType, QStringList headers, int entityId, QString componentName, const QJsonObject &paramsJsonObj)
+QVariant test_restserver::invokeCurlClient(QString requestType, QStringList headers, QString urlExtension, QJsonArray paramsJsonArray, QJsonObject paramsJsonObj)
 {
     HttpCurlClient curlProcess;
     QSignalSpy spy(&curlProcess, &HttpCurlClient::processFinished);
-    QString url = httpServerUrl + veinApiUrl;
-    if(entityId != -1)
-        url += "?entity_id=" + QString::number(entityId) + "&component_name=" + componentName;
-
-    HttpCurlClient::CurlArguments curlArgs {
-        requestType,
-        url,
-        headers,
-        QJsonArray(),
-        paramsJsonObj
-    };
-    curlProcess.startCurlProcess(curlArgs);
-
-    SignalSpyWaiterWithProcessTimers::waitForSignals(&spy, 1, 1000);
-    return convertResponseToJson(spy[0][0]);
-}
-
-QJsonArray test_restserver::invokeCurlClientForPost(QString requestType, QStringList headers, QJsonArray paramsJsonArray)
-{
-    HttpCurlClient curlProcess;
-    QSignalSpy spy(&curlProcess, &HttpCurlClient::processFinished);
-    QString url = httpServerUrl + veinApiUrl;
+    QString url = httpServerUrl + veinApiUrl + urlExtension;
     HttpCurlClient::CurlArguments curlArgs {
         requestType,
         url,
         headers,
         paramsJsonArray,
-        QJsonObject()
+        paramsJsonObj
     };
     curlProcess.startCurlProcess(curlArgs);
     SignalSpyWaiterWithProcessTimers::waitForSignals(&spy, 1, 1000);
-    QVariant response = spy[0][0];
-    return response.toJsonArray();
+    return spy[0][0];
+}
+
+QString test_restserver::prepareUrlExtension(int entityId, QString componentName)
+{
+    return "?entity_id=" + QString::number(entityId) + "&component_name=" + componentName;
 }
