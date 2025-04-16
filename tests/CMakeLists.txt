@@ -24,3 +24,7 @@ SETUP_TESTS(
     test_veinentry
     test_restserver
 )
+target_sources(test_restserver
+    PRIVATE
+    test-data/test-data.qrc
+)

@@ -30,6 +30,12 @@ private slots:
     void getBulkTwoVeinComponentsDifferentEntities();
     void getBulkTwoVeinComponentsOneInvalidEntity();
 
+    void invokeRPCInvalidEntityId();
+    void invokeRPCInvalidRPCName();
+    void invokeRPCInvalidRPCParams();
+    void invokeRPCWithJsonResponse();
+    void invokeRPCWithBoolResponse();
+
 private:
     QJsonObject createCurlRpcParamJson(int entityId, QString rpcName, QMap<QString, QString> rpcParams);
     QJsonObject convertResponseToJson(QVariant response);

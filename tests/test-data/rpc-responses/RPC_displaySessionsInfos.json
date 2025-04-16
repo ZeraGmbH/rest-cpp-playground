@@ -1,0 +1,6 @@
+{
+    "EntityId": 2,
+    "RPC_Name": "RPC_displaySessionsInfos",
+    "ReturnInformation": "{\"foo\":{\"contentset\":\"ZeraAll\",\"guicontext\":\"ZeraGuiActualValues\"}}",
+    "status": 200
+}

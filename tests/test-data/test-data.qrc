@@ -1,0 +1,8 @@
+<RCC>
+    <qresource prefix="/">
+        <file>rpc-responses/RPC_displaySessionsInfos.json</file>
+        <file>rpc-responses/RPC_displaySessionsInfos_InvalidEntityId.json</file>
+        <file>rpc-responses/RPC_displaySessionsInfos_InvalidRPCParams.json</file>
+        <file>rpc-responses/RPC_displaySessionsInfos_InvalidRPCName.json</file>
+    </qresource>
+</RCC>
