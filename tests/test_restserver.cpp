@@ -141,11 +141,6 @@ void test_restserver::getBulkVeinComponent()
     QCOMPARE(responseObj.value("ReturnInformation"), "true");
 }
 
-void test_restserver::getBulkTwoVeinComponents()
-{
-
-}
-
 void test_restserver::getBulkVeinComponentInvalidEntityId()
 {
     QStringList headers = QStringList() << "accept: application/json" << "Content-Type: application/json";
@@ -174,6 +169,78 @@ void test_restserver::getBulkVeinComponentInvalidComponentName()
     QCOMPARE(responseArr.size(), 1);
     QJsonObject responseObj = responseArr.at(0).toObject();
     QCOMPARE(responseObj.value("status"), 422);
+}
+
+void test_restserver::getBulkTwoVeinComponentsSameEntity()
+{
+    QStringList headers = QStringList() << "accept: application/json" << "Content-Type: application/json";
+    QJsonArray params;
+    QJsonObject obj;
+    obj.insert("EntityId", 2);
+    obj.insert("ComponentName", "DatabaseReady");
+    params.append(obj);
+    obj.insert("EntityId", 2);
+    obj.insert("ComponentName", "LoggingEnabled");
+    params.append(obj);
+    HttpCurlClient::CurlArguments curlArgs {"POST", httpBaseUrl, headers, params, QJsonObject()};
+    QVariant var = invokeCurlClient(curlArgs);
+    QJsonArray responseArr = convertResponseToJsonArray(var);
+    QCOMPARE(responseArr.size(), 2);
+    QJsonObject responseObj = responseArr.at(0).toObject();
+    QCOMPARE(responseObj.value("status"), 200);
+    QCOMPARE(responseObj.value("ReturnInformation"), "true");
+
+    responseObj = responseArr.at(1).toObject();
+    QCOMPARE(responseObj.value("status"), 200);
+    QCOMPARE(responseObj.value("ReturnInformation"), "false");
+}
+
+void test_restserver::getBulkTwoVeinComponentsDifferentEntities()
+{
+    QStringList headers = QStringList() << "accept: application/json" << "Content-Type: application/json";
+    QJsonArray params;
+    QJsonObject obj;
+    obj.insert("EntityId", 2);
+    obj.insert("ComponentName", "DatabaseReady");
+    params.append(obj);
+    obj.insert("EntityId", 0);
+    obj.insert("ComponentName", "Session");
+    params.append(obj);
+    HttpCurlClient::CurlArguments curlArgs {"POST", httpBaseUrl, headers, params, QJsonObject()};
+    QVariant var = invokeCurlClient(curlArgs);
+    QJsonArray responseArr = convertResponseToJsonArray(var);
+    QCOMPARE(responseArr.size(), 2);
+    QJsonObject responseObj = responseArr.at(0).toObject();
+    QCOMPARE(responseObj.value("status"), 200);
+    QCOMPARE(responseObj.value("ReturnInformation"), "true");
+
+    responseObj = responseArr.at(1).toObject();
+    QCOMPARE(responseObj.value("status"), 200);
+    QCOMPARE(responseObj.value("ReturnInformation"), "\"test-session1.json\"");
+}
+
+void test_restserver::getBulkTwoVeinComponentsOneInvalidEntity()
+{
+    QStringList headers = QStringList() << "accept: application/json" << "Content-Type: application/json";
+    QJsonArray params;
+    QJsonObject obj;
+    obj.insert("EntityId", 2);
+    obj.insert("ComponentName", "DatabaseReady");
+    params.append(obj);
+    obj.insert("EntityId", 50);
+    obj.insert("ComponentName", "Session");
+    params.append(obj);
+    HttpCurlClient::CurlArguments curlArgs {"POST", httpBaseUrl, headers, params, QJsonObject()};
+    QVariant var = invokeCurlClient(curlArgs);
+    QJsonArray responseArr = convertResponseToJsonArray(var);
+    QCOMPARE(responseArr.size(), 2);
+    QJsonObject responseObj = responseArr.at(0).toObject();
+    QCOMPARE(responseObj.value("status"), 200);
+    QCOMPARE(responseObj.value("ReturnInformation"), "true");
+
+    responseObj = responseArr.at(1).toObject();
+    QCOMPARE(responseObj.value("status"), 422);
+    QCOMPARE(responseObj.value("ReturnInformation"), "\"Timeout or not existing entity or component\"");
 }
 
 QJsonObject test_restserver::createCurlRpcParamJson(int entityId, QString rpcName, QMap<QString, QString> rpcParams)
