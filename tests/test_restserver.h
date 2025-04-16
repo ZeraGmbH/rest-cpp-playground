@@ -2,6 +2,7 @@
 #define TEST_RESTSERVER_H
 
 #include "httpserversetup.h"
+#include "httpcurlclient.h"
 #include "vn_tcpsystem.h"
 #include <testloggersystem.h>
 #include <QMap>
@@ -26,8 +27,8 @@ private slots:
 private:
     QJsonObject createCurlRpcParamJson(int entityId, QString rpcName, QMap<QString, QString> rpcParams);
     QJsonObject convertResponseToJson(QVariant response);
-    QVariant invokeCurlClient(QString requestType, QStringList headers, QString urlExtension, QJsonArray paramsJsonArray, QJsonObject paramsJsonObj);
-    QString prepareUrlExtension(int entityId, QString componentName);
+    QVariant invokeCurlClient(HttpCurlClient::CurlArguments curlArgs);
+    QString getUrlExtension(int entityId, QString componentName);
     TestLoggerSystem m_testLogger;
     std::unique_ptr<HttpServerSetup> m_httpServer;
     VeinNet::TcpSystem* m_tcpSystem;
