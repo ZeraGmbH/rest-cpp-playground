@@ -147,7 +147,16 @@ QJsonObject test_restserver::invokeCurlClient(QString requestType, QStringList h
     QString url = httpServerUrl + veinApiUrl;
     if(entityId != -1)
         url += "?entity_id=" + QString::number(entityId) + "&component_name=" + componentName;
-    curlProcess.startCurlProcess(requestType, url, headers, false, QJsonArray(), paramsJson);
+
+    HttpCurlClient::CurlArguments curlArgs {
+        requestType,
+        url,
+        headers,
+        false,
+        QJsonArray(),
+        paramsJson
+    };
+    curlProcess.startCurlProcess(curlArgs);
 
     SignalSpyWaiterWithProcessTimers::waitForSignals(&spy, 1, 1000);
     return convertResponseToJson(spy[0][0]);
@@ -158,7 +167,15 @@ QJsonArray test_restserver::invokeCurlClientForPost(QString requestType, QString
     HttpCurlClient curlProcess;
     QSignalSpy spy(&curlProcess, &HttpCurlClient::processFinished);
     QString url = httpServerUrl + veinApiUrl;
-    curlProcess.startCurlProcess(requestType, url, headers, true, paramsJson);
+    HttpCurlClient::CurlArguments curlArgs {
+        requestType,
+        url,
+        headers,
+        true,
+        paramsJson,
+        QJsonObject()
+    };
+    curlProcess.startCurlProcess(curlArgs);
     SignalSpyWaiterWithProcessTimers::waitForSignals(&spy, 1, 1000);
     QVariant response = spy[0][0];
     return response.toJsonArray();

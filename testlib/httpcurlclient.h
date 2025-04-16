@@ -10,8 +10,16 @@ class HttpCurlClient : public QObject
 {
     Q_OBJECT
 public:
+    struct CurlArguments {
+        QString requestType;
+        QString URL;
+        QStringList headers;
+        bool postCommand;
+        const QJsonArray &paramsArray = QJsonArray();
+        const QJsonObject &paramsJson = QJsonObject();
+    };
     HttpCurlClient();
-    void startCurlProcess(QString requestType, QString URL, QStringList headers, bool postCommand, const QJsonArray &paramsArray = QJsonArray(), const QJsonObject &paramsJson = QJsonObject());
+    void startCurlProcess(CurlArguments curlArgs);
 signals:
     void processFinished(QByteArray responseData);
 private:
