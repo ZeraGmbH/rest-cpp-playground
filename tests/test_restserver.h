@@ -22,11 +22,18 @@ private slots:
     void setVeinComponent();
     void setVeinComponentInvalidEntityId();
     void setVeinComponentInvalidComponentName();
+
     void getBulkVeinComponent();
+    void getBulkTwoVeinComponents();
+    void getBulkVeinComponentInvalidEntityId();
+    void getBulkVeinComponentInvalidComponentName();
+
+
 
 private:
     QJsonObject createCurlRpcParamJson(int entityId, QString rpcName, QMap<QString, QString> rpcParams);
     QJsonObject convertResponseToJson(QVariant response);
+    QJsonArray convertResponseToJsonArray(QVariant response);
     QVariant invokeCurlClient(HttpCurlClient::CurlArguments curlArgs);
     QString getUrlExtension(int entityId, QString componentName);
     TestLoggerSystem m_testLogger;
