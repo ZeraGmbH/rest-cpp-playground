@@ -5,6 +5,7 @@
 #include <timemachinefortest.h>
 #include <timerfactoryqtfortest.h>
 #include <vn_networksystem.h>
+#include <testloghelpers.h>
 #include "qtest.h"
 
 QTEST_MAIN(test_restserver)
@@ -241,6 +242,110 @@ void test_restserver::getBulkTwoVeinComponentsOneInvalidEntity()
     responseObj = responseArr.at(1).toObject();
     QCOMPARE(responseObj.value("status"), 422);
     QCOMPARE(responseObj.value("ReturnInformation"), "\"Timeout or not existing entity or component\"");
+}
+
+void test_restserver::invokeRPCInvalidEntityId()
+{
+    m_testLogger.setComponent(dataLoggerEntityId, "sessionName", "DbTestSession1");
+    m_testLogger.setComponent(dataLoggerEntityId, "guiContext", "ZeraGuiActualValues");
+    m_testLogger.setComponent(dataLoggerEntityId, "currentContentSets", QVariantList() << "ZeraAll");
+    m_testLogger.setComponentValues(1);
+    m_testLogger.startLogging("DbTestSession1", "foo");
+    m_testLogger.setComponentValues(2);
+    m_testLogger.stopLogging();
+
+    QStringList headers = QStringList() << "accept: application/json" << "Content-Type: application/json";
+    QMap<QString, QString> rpcParams;
+    rpcParams.insert("p_session", "DbTestSession1");
+    QJsonObject curlParams = createCurlRpcParamJson(2222, "RPC_displaySessionsInfos", rpcParams);
+
+    HttpCurlClient::CurlArguments curlArgs {"POST", httpBaseUrl + "rpc1/", headers, QJsonArray(), curlParams};
+    QVariant response = invokeCurlClient(curlArgs);
+
+    QFile file(":/rpc-responses/RPC_displaySessionsInfos_InvalidEntityId.json");
+    QVERIFY(file.open(QFile::ReadOnly));
+    QByteArray jsonExpected = file.readAll();
+    QByteArray jsonDumped = response.toByteArray();
+    QVERIFY(TestLogHelpers::compareAndLogOnDiff(jsonExpected, jsonDumped));
+}
+
+void test_restserver::invokeRPCInvalidRPCName()
+{
+    QStringList headers = QStringList() << "accept: application/json" << "Content-Type: application/json";
+    QMap<QString, QString> rpcParams;
+    rpcParams.insert("p_session", "DbTestSession1");
+    QJsonObject curlParams = createCurlRpcParamJson(2, "foo", rpcParams);
+
+    HttpCurlClient::CurlArguments curlArgs {"POST", httpBaseUrl + "rpc1/", headers, QJsonArray(), curlParams};
+    QVariant response = invokeCurlClient(curlArgs);
+
+    QFile file(":/rpc-responses/RPC_displaySessionsInfos_InvalidRPCName.json");
+    QVERIFY(file.open(QFile::ReadOnly));
+    QByteArray jsonExpected = file.readAll();
+    QByteArray jsonDumped = response.toByteArray();
+    QVERIFY(TestLogHelpers::compareAndLogOnDiff(jsonExpected, jsonDumped));
+}
+
+void test_restserver::invokeRPCInvalidRPCParams()
+{
+    QStringList headers = QStringList() << "accept: application/json" << "Content-Type: application/json";
+    QMap<QString, QString> rpcParams;
+    rpcParams.insert("p_session", "bar");
+    QJsonObject curlParams = createCurlRpcParamJson(2, "RPC_displaySessionsInfos", rpcParams);
+
+    HttpCurlClient::CurlArguments curlArgs {"POST", httpBaseUrl + "rpc1/", headers, QJsonArray(), curlParams};
+    QVariant response = invokeCurlClient(curlArgs);
+
+    QFile file(":/rpc-responses/RPC_displaySessionsInfos_InvalidRPCParams.json");
+    QVERIFY(file.open(QFile::ReadOnly));
+    QByteArray jsonExpected = file.readAll();
+    QByteArray jsonDumped = response.toByteArray();
+    QVERIFY(TestLogHelpers::compareAndLogOnDiff(jsonExpected, jsonDumped));
+}
+
+void test_restserver::invokeRPCWithJsonResponse()
+{
+    m_testLogger.setComponent(dataLoggerEntityId, "sessionName", "DbTestSession1");
+    m_testLogger.setComponent(dataLoggerEntityId, "guiContext", "ZeraGuiActualValues");
+    m_testLogger.setComponent(dataLoggerEntityId, "currentContentSets", QVariantList() << "ZeraAll");
+    m_testLogger.setComponentValues(1);
+    m_testLogger.startLogging("DbTestSession1", "foo");
+    m_testLogger.setComponentValues(2);
+    m_testLogger.stopLogging();
+
+    QStringList headers = QStringList() << "accept: application/json" << "Content-Type: application/json";
+    QMap<QString, QString> rpcParams;
+    rpcParams.insert("p_session", "DbTestSession1");
+    QJsonObject curlParams = createCurlRpcParamJson(2, "RPC_displaySessionsInfos", rpcParams);
+
+    HttpCurlClient::CurlArguments curlArgs {"POST", httpBaseUrl + "rpc1/", headers, QJsonArray(), curlParams};
+    QVariant response = invokeCurlClient(curlArgs);
+
+    QFile file(":/rpc-responses/RPC_displaySessionsInfos.json");
+    QVERIFY(file.open(QFile::ReadOnly));
+    QByteArray jsonExpected = file.readAll();
+    QByteArray jsonDumped = response.toByteArray();
+    QVERIFY(TestLogHelpers::compareAndLogOnDiff(jsonExpected, jsonDumped));
+}
+
+void test_restserver::invokeRPCWithBoolResponse()
+{
+    QStringList headers = QStringList() << "accept: application/json" << "Content-Type: application/json";
+    QMap<QString, QString> rpcParams;
+    rpcParams.insert("p_session", "DbTestSession1");
+    QJsonObject curlParams = createCurlRpcParamJson(2, "RPC_deleteSession", rpcParams);
+
+    HttpCurlClient::CurlArguments curlArgs {"POST", httpBaseUrl + "rpc1/", headers, QJsonArray(), curlParams};
+    QJsonObject responseJson = convertResponseToJson(invokeCurlClient(curlArgs));
+    QCOMPARE(responseJson.value("ReturnInformation").toString(), "true");
+
+    rpcParams.clear();
+    rpcParams.insert("p_session", "foo");
+    curlParams = createCurlRpcParamJson(2, "RPC_deleteSession", rpcParams);
+
+    curlArgs.paramsJsonObj = curlParams;
+    responseJson = convertResponseToJson(invokeCurlClient(curlArgs));
+    QCOMPARE(responseJson.value("ReturnInformation").toString(), "false");
 }
 
 QJsonObject test_restserver::createCurlRpcParamJson(int entityId, QString rpcName, QMap<QString, QString> rpcParams)

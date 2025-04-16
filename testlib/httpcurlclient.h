@@ -14,8 +14,8 @@ public:
         QString requestType;
         QString URL;
         QStringList headers;
-        const QJsonArray &paramsJsonArray = QJsonArray();
-        const QJsonObject &paramsJsonObj = QJsonObject();
+        QJsonArray paramsJsonArray;
+        QJsonObject paramsJsonObj;
     };
     HttpCurlClient();
     void startCurlProcess(CurlArguments curlArgs);
