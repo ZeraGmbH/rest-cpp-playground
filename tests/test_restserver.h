@@ -24,11 +24,11 @@ private slots:
     void setVeinComponentInvalidComponentName();
 
     void getBulkVeinComponent();
-    void getBulkTwoVeinComponents();
     void getBulkVeinComponentInvalidEntityId();
     void getBulkVeinComponentInvalidComponentName();
-
-
+    void getBulkTwoVeinComponentsSameEntity();
+    void getBulkTwoVeinComponentsDifferentEntities();
+    void getBulkTwoVeinComponentsOneInvalidEntity();
 
 private:
     QJsonObject createCurlRpcParamJson(int entityId, QString rpcName, QMap<QString, QString> rpcParams);
