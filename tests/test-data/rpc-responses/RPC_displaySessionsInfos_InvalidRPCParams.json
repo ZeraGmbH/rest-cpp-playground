@@ -1,6 +1,6 @@
 {
     "EntityId": 2,
     "RPC_Name": "RPC_displaySessionsInfos",
-    "ReturnInformation": "false",
+    "ReturnInformation": "\"Timeout or wrong parameters.\"",
     "status": 422
 }

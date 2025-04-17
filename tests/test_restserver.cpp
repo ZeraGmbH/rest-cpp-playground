@@ -338,6 +338,7 @@ void test_restserver::invokeRPCWithBoolResponse()
     HttpCurlClient::CurlArguments curlArgs {"POST", httpBaseUrl + "rpc1/", headers, QJsonArray(), curlParams};
     QJsonObject responseJson = convertResponseToJson(invokeCurlClient(curlArgs));
     QCOMPARE(responseJson.value("ReturnInformation").toString(), "true");
+    QCOMPARE(responseJson.value("status"), 200);
 
     rpcParams.clear();
     rpcParams.insert("p_session", "foo");
@@ -345,7 +346,7 @@ void test_restserver::invokeRPCWithBoolResponse()
 
     curlArgs.paramsJsonObj = curlParams;
     responseJson = convertResponseToJson(invokeCurlClient(curlArgs));
-    QCOMPARE(responseJson.value("ReturnInformation").toString(), "false");
+    QCOMPARE(responseJson.value("status"), 422);
 }
 
 QJsonObject test_restserver::createCurlRpcParamJson(int entityId, QString rpcName, QMap<QString, QString> rpcParams)

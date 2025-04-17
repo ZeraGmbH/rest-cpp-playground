@@ -124,7 +124,7 @@ OAIRpcResponse OAIVeinApiHandler::getRPCAnswer(OAIRpcRequest rpc_request, std::s
             response.setStatus(200);
         }
         else {
-            response.setReturnInformation(result->toString());
+            response.setReturnInformation("\"Timeout or wrong parameters.\"");
             response.setStatus(422);
         }
     }
