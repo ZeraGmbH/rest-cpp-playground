@@ -139,6 +139,10 @@ OAIRpcResponse OAIVeinApiHandler::getRPCAnswer(OAIRpcRequest rpc_request, std::s
             response.setStatus(204);
         }
     }
+    else {
+        response.setStatus(422);
+        response.setReturnInformation("\"RPC not reachable. Check EntityId or RpcName\"");
+    }
     return response;
 }
 
