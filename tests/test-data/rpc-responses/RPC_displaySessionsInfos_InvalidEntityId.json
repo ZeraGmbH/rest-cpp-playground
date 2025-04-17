@@ -1,4 +1,6 @@
 {
     "EntityId": 2222,
-    "RPC_Name": "RPC_displaySessionsInfos"
+    "RPC_Name": "RPC_displaySessionsInfos",
+    "ReturnInformation": "\"RPC not reachable. Check EntityId or RpcName\"",
+    "status": 422
 }
