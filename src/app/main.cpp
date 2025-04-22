@@ -64,14 +64,14 @@ int main(int argc, char * argv[])
         QStringList() << "a" << "address",
         "address to bind to",
         "address",
-        "0.0.0.0"
+        "127.0.0.1"
     );
     parser.addOption(addressOption);
     QCommandLineOption portOption(
         QStringList() << "p" << "port",
         "port to listen on",
         "port",
-        "8080"
+        "8082"
     );
     parser.addOption(portOption);
     parser.addHelpOption();
