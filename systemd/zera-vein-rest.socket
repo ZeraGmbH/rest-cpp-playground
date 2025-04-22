@@ -1,5 +1,5 @@
 [Socket]
-ListenStream=8082
+ListenStream=127.0.0.1:8082
 
 [Install]
 WantedBy=sockets.target
