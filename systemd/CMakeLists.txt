@@ -9,7 +9,7 @@ add_custom_target(
 )
 
 set(useSystemd 1)
-get_filename_component(SYSTEMD_UNIT_INSTALL_PATH "${CMAKE_INSTALL_PREFIX}../lib/systemd/system" ABSOLUTE)
+get_filename_component(SYSTEMD_UNIT_INSTALL_PATH "${CMAKE_INSTALL_PREFIX}/../lib/systemd/system" ABSOLUTE)
 # courtesy of zenux-services/zdsp1d
 if(${useSystemd})
     install(
