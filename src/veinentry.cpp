@@ -1,6 +1,10 @@
 #include "veinentry.h"
 #include "task_client_component_setter.h"
 #include "task_client_rpc_invoker.h"
+#include "tasklambdarunner.h"
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <qjsonarray.h>
 
 std::shared_ptr<VeinEntry> VeinEntry::create(VeinTcp::AbstractTcpNetworkFactoryPtr tcpNetworkFactory)
 {
@@ -32,7 +36,19 @@ TaskTemplatePtr VeinEntry::setToVein(int entityId, QString componentName, QVaria
     if(m_storage.getDb()->hasEntity(entityId)) {
         VfCmdEventItemEntityPtr entityItem = VfEntityComponentEventItem::create(entityId);
         m_cmdEventHandlerSystem->addItem(entityItem);
-        TaskTemplatePtr setter = TaskClientComponentSetter::create(entityItem, componentName, m_storage.getDb()->getStoredValue(entityId, componentName), value, 1000, []() {
+        QVariant valueToBeSent = value;
+        if (static_cast<QMetaType::Type>(m_storage.getDb()->getStoredValue(entityId, componentName).type()) == QMetaType::QJsonObject || static_cast<QMetaType::Type>(m_storage.getDb()->getStoredValue(entityId, componentName).type()) == QMetaType::QVariantMap) {
+            QString data(valueToBeSent.toString());
+            QJsonDocument doc = QJsonDocument::fromJson(data.toUtf8());
+            if (doc.isArray())
+                valueToBeSent = doc.array();
+            else
+                valueToBeSent = doc.object();
+
+            if (valueToBeSent.isNull())
+                return TaskLambdaRunner::create([](){return false;});
+        }
+        TaskTemplatePtr setter = TaskClientComponentSetter::create(entityItem, componentName, m_storage.getDb()->getStoredValue(entityId, componentName), valueToBeSent, 1000, []() {
             qWarning("Setter Task failed");
         });
         connect(setter.get(), &TaskTemplate::sigFinish, this, [this, entityItem](){

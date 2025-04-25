@@ -82,7 +82,7 @@ QString OAIVeinApiHandler::variantToJsonString(QVariant input)
     if (dataType == QMetaType::QByteArray) {
           returnValue = QString(*static_cast<const QByteArray *>(input.constData()));
     }
-    else if (dataType == QMetaType::QJsonObject) {
+    else if (dataType == QMetaType::QJsonObject || dataType == QMetaType::QVariantMap) {
         QJsonObject jsonObj = QJsonValue::fromVariant(input).toObject();
         QJsonDocument doc = QJsonDocument(jsonObj);
         returnValue = doc.toJson(QJsonDocument::Compact);
