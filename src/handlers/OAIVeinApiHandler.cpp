@@ -128,7 +128,7 @@ OAIRpcResponse OAIVeinApiHandler::getRPCAnswer(OAIRpcRequest rpc_request, std::s
             response.setStatus(422);
         }
     }
-    else if(QString(result->typeName()) == "QVariantMap") {
+    else if(QString(result->typeName()) == "QVariantMap" || QString(result->typeName()) == "QJsonArray") {
         QString returnValue = variantToJsonString(*result);
         if(returnValue != "{}") {
             response.setReturnInformation(returnValue);
