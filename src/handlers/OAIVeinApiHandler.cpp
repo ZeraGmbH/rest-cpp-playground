@@ -130,12 +130,12 @@ OAIRpcResponse OAIVeinApiHandler::getRPCAnswer(OAIRpcRequest rpc_request, std::s
     }
     else if(QString(result->typeName()) == "QVariantMap" || QString(result->typeName()) == "QJsonArray") {
         QString returnValue = variantToJsonString(*result);
-        if(returnValue != "{}") {
+        if(returnValue != "{}" || returnValue != "[]") {
             response.setReturnInformation(returnValue);
             response.setStatus(200);
         }
         else {
-            response.setReturnInformation("{}");
+            response.setReturnInformation(returnValue);
             response.setStatus(204);
         }
     }
