@@ -123,7 +123,9 @@ OAIRpcResponse OAIVeinApiHandler::getRPCAnswer(OAIRpcRequest rpc_request, std::s
     response.setRpcName(rpcName);
     response.setEntityId(entityId);
 
-    if(QString(result->typeName()) == "bool") {
+    QString typeName(result->typeName());
+
+    if(typeName == "bool") {
         if(result->toBool() == true) {
             response.setReturnInformation(result->toString());
             response.setStatus(200);
@@ -133,7 +135,11 @@ OAIRpcResponse OAIVeinApiHandler::getRPCAnswer(OAIRpcRequest rpc_request, std::s
             response.setStatus(422);
         }
     }
-    else if(QString(result->typeName()) == "QVariantMap" || QString(result->typeName()) == "QJsonArray") {
+    else if(typeName == "int") {
+        response.setReturnInformation(result->toString());
+        response.setStatus(200);
+    }
+    else if(typeName == "QVariantMap" || typeName == "QJsonArray") {
         QString returnValue = variantToJsonString(*result);
         if(returnValue != "{}" && returnValue != "[]") {
             response.setReturnInformation(returnValue);
