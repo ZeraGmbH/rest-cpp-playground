@@ -202,7 +202,7 @@ void OAIVeinApiHandler::apiV1VeinPost(QList<OAIVeinGetRequest> oai_vein_get_requ
     }
 }
 
-void OAIVeinApiHandler::apiV1VeinRpc1Post(OAIRpcRequest oai_rpc_request) {
+void OAIVeinApiHandler::apiV1VeinRpcPost(OAIRpcRequest oai_rpc_request) {
     auto reqObj = qobject_cast<OAIVeinApiRequest*>(sender());
     if( reqObj != nullptr )
     {
@@ -219,7 +219,7 @@ void OAIVeinApiHandler::apiV1VeinRpc1Post(OAIRpcRequest oai_rpc_request) {
         auto conn = std::make_shared<QMetaObject::Connection>();
         *conn = connect(taskSharedPtr.get(), &TaskTemplate::sigFinish, this, [conn, reqObj, res, taskSharedPtr, oai_rpc_request, result, this](bool ok, int taskId){
             OAIRpcResponse res = getRPCAnswer(oai_rpc_request, result);
-            reqObj->apiV1VeinRpc1PostResponse(res);
+            reqObj->apiV1VeinRpcPostResponse(res);
             disconnect(*conn);
         });
         taskSharedPtr->start();

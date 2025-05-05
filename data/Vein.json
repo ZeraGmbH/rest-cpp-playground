@@ -10,7 +10,7 @@
     "version": "v1"
   },
   "paths": {
-    "/api/v1/Vein/rpc1/": {
+    "/api/v1/Vein/rpc/": {
       "post": {
         "tags": [
           "Vein"
