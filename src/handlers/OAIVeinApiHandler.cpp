@@ -208,15 +208,28 @@ void OAIVeinApiHandler::apiV1VeinRpcPost(OAIRpcRequest oai_rpc_request) {
     {
         OAIRpcResponse res;
         QVariantMap parametersMap;
+
         QList<OAIRpcRequest_parameters_inner> parameterList = oai_rpc_request.getParameters();
+
         for(int i = 0; i < parameterList.length(); i++) {
             QString key = parameterList.at(i).getKey();
             QString value = parameterList.at(i).getValue();
             parametersMap.insert(key, value);
         }
+
         std::shared_ptr<QVariant> result = std::make_shared<QVariant>();
-        std::shared_ptr<TaskTemplate> taskSharedPtr = m_veinEntry->rpcToVein(oai_rpc_request.getEntityId(), oai_rpc_request.getRpcName(), parametersMap, result);
+
+        std::shared_ptr<TaskTemplate> taskSharedPtr =
+            m_veinEntry->rpcToVein(
+                oai_rpc_request.getEntityId(),
+                oai_rpc_request.getRpcName(),
+                parametersMap,
+                result,
+                oai_rpc_request.is_timeout_Set() ? oai_rpc_request.getTimeout() : 1000
+            );
+
         auto conn = std::make_shared<QMetaObject::Connection>();
+
         *conn = connect(taskSharedPtr.get(), &TaskTemplate::sigFinish, this, [conn, reqObj, res, taskSharedPtr, oai_rpc_request, result, this](bool ok, int taskId){
             OAIRpcResponse res = getRPCAnswer(oai_rpc_request, result);
             reqObj->apiV1VeinRpcPostResponse(res);
