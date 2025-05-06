@@ -9,6 +9,7 @@
  * Do not edit the class manually.
  */
 
+#include <QJsonParseError>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
@@ -218,9 +219,14 @@ void OAIVeinApiHandler::apiV1VeinRpcPost(OAIRpcRequest oai_rpc_request) {
         QList<OAIRpcRequest_parameters_inner> parameterList = oai_rpc_request.getParameters();
 
         for(int i = 0; i < parameterList.length(); i++) {
-            QString key = parameterList.at(i).getKey();
-            QString value = parameterList.at(i).getValue();
-            parametersMap.insert(key, value);
+            // Wrap JSON serialized value in a dummy object do simplify parsing.
+            QString docValue = QString("{\"d\":%1}").arg(parameterList.at(i).getValue());
+
+            // Parse the dummy object.
+            QJsonDocument doc(QJsonDocument::fromJson(docValue.toUtf8()));
+
+            // Copy the original value deserialized as a variant to the RPC actual parameter map.
+            parametersMap.insert(parameterList.at(i).getKey(), doc["d"].toVariant());
         }
 
         std::shared_ptr<QVariant> result = std::make_shared<QVariant>();
