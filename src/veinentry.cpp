@@ -76,7 +76,7 @@ std::shared_ptr<TaskTemplate> VeinEntry::rpcToVein(int entityId, QString rpc_nam
         return taskSharedPtr;
     }
     else
-        return TaskSimpleVeinRPCInvoker::create(entityId, rpc_name, parameters, result, m_cmdEventHandlerSystem);
+        return TaskSimpleVeinRPCInvoker::create(entityId, rpc_name, parameters, result, m_cmdEventHandlerSystem, timeout);
 }
 
 VeinStorage::AbstractDatabase *VeinEntry::getStorageDb()
