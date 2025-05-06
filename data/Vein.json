@@ -371,6 +371,12 @@
                 }
               }
             }
+          },
+          "Timeout": {
+            "type": "integer",
+            "description": "Optional timeout in milliseconds (defaults to 1000)",
+            "format": "int32",
+            "nullable": true
           }
         }
       },

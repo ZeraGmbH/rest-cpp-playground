@@ -9,6 +9,7 @@
  * Do not edit the class manually.
  */
 
+#include <QJsonParseError>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
@@ -123,7 +124,9 @@ OAIRpcResponse OAIVeinApiHandler::getRPCAnswer(OAIRpcRequest rpc_request, std::s
     response.setRpcName(rpcName);
     response.setEntityId(entityId);
 
-    if(QString(result->typeName()) == "bool") {
+    QString typeName(result->typeName());
+
+    if(typeName == "bool") {
         if(result->toBool() == true) {
             response.setReturnInformation(result->toString());
             response.setStatus(200);
@@ -133,7 +136,11 @@ OAIRpcResponse OAIVeinApiHandler::getRPCAnswer(OAIRpcRequest rpc_request, std::s
             response.setStatus(422);
         }
     }
-    else if(QString(result->typeName()) == "QVariantMap" || QString(result->typeName()) == "QJsonArray") {
+    else if(typeName == "int") {
+        response.setReturnInformation(result->toString());
+        response.setStatus(200);
+    }
+    else if(typeName == "QVariantMap" || typeName == "QJsonArray") {
         QString returnValue = variantToJsonString(*result);
         if(returnValue != "{}" && returnValue != "[]") {
             response.setReturnInformation(returnValue);
@@ -208,15 +215,33 @@ void OAIVeinApiHandler::apiV1VeinRpcPost(OAIRpcRequest oai_rpc_request) {
     {
         OAIRpcResponse res;
         QVariantMap parametersMap;
+
         QList<OAIRpcRequest_parameters_inner> parameterList = oai_rpc_request.getParameters();
+
         for(int i = 0; i < parameterList.length(); i++) {
-            QString key = parameterList.at(i).getKey();
-            QString value = parameterList.at(i).getValue();
-            parametersMap.insert(key, value);
+            // Wrap JSON serialized value in a dummy object do simplify parsing.
+            QString docValue = QString("{\"d\":%1}").arg(parameterList.at(i).getValue());
+
+            // Parse the dummy object.
+            QJsonDocument doc(QJsonDocument::fromJson(docValue.toUtf8()));
+
+            // Copy the original value deserialized as a variant to the RPC actual parameter map.
+            parametersMap.insert(parameterList.at(i).getKey(), doc["d"].toVariant());
         }
+
         std::shared_ptr<QVariant> result = std::make_shared<QVariant>();
-        std::shared_ptr<TaskTemplate> taskSharedPtr = m_veinEntry->rpcToVein(oai_rpc_request.getEntityId(), oai_rpc_request.getRpcName(), parametersMap, result);
+
+        std::shared_ptr<TaskTemplate> taskSharedPtr =
+            m_veinEntry->rpcToVein(
+                oai_rpc_request.getEntityId(),
+                oai_rpc_request.getRpcName(),
+                parametersMap,
+                result,
+                oai_rpc_request.is_timeout_Set() ? oai_rpc_request.getTimeout() : 1000
+            );
+
         auto conn = std::make_shared<QMetaObject::Connection>();
+
         *conn = connect(taskSharedPtr.get(), &TaskTemplate::sigFinish, this, [conn, reqObj, res, taskSharedPtr, oai_rpc_request, result, this](bool ok, int taskId){
             OAIRpcResponse res = getRPCAnswer(oai_rpc_request, result);
             reqObj->apiV1VeinRpcPostResponse(res);
