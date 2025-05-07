@@ -21,7 +21,8 @@ public:
     VeinEntry(VeinTcp::AbstractTcpNetworkFactoryPtr tcpNetworkFactory);
 
     TaskTemplatePtr setToVein(int entityId, QString componentName, QVariant value);
-    std::shared_ptr<TaskTemplate> rpcToVein(int entityId, QString rpc_name, QVariantMap parameters, std::shared_ptr<QVariant> result, int timeout);
+    std::shared_ptr<TaskTemplate> rpcToVein(int entityId, QString rpc_name, QVariantMap parameters, std::shared_ptr<bool> rpcSuccessful,
+                                            std::shared_ptr<QVariant> result, int timeout);
 
     VeinStorage::AbstractDatabase* getStorageDb();
     std::shared_ptr<SubscriptionManager> getSubscriptionManager();
