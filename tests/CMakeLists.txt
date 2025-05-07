@@ -23,6 +23,7 @@ SETUP_TESTS(
     test_subscription_manager
     test_veinentry
     test_restserver
+    test_json_conversions
 )
 target_sources(test_restserver
     PRIVATE
