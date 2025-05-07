@@ -127,7 +127,7 @@ OAIRpcResponse OAIVeinApiHandler::getRPCAnswer(OAIRpcRequest rpc_request, bool r
     QString typeName(result->typeName());
 
     if(!rpcfound) {
-        response.setStatus(422);
+        response.setStatus(400);
         response.setReturnInformation("\"RPC not reachable. Check EntityId or RpcName\"");
     }
     else {
