@@ -354,7 +354,7 @@
             "description": "The rpc name to execute",
             "nullable": false
           },
-          "parameters": {
+          "Parameters": {
             "type": "array",
             "items": {
               "type": "object",
@@ -365,7 +365,6 @@
                   "nullable": false
                 },
                 "Value": {
-                  "type": "string",
                   "description": "The value of the map entry",
                   "nullable": false
                 }

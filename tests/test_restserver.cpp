@@ -273,7 +273,7 @@ void test_restserver::invokeRPCInvalidRPCName()
 {
     QStringList headers = QStringList() << "accept: application/json" << "Content-Type: application/json";
     QMap<QString, QString> rpcParams;
-    rpcParams.insert("p_session", "\"DbTestSession1\"");
+    rpcParams.insert("p_session", "DbTestSession1");
     QJsonObject curlParams = createCurlRpcParamJson(2, "foo", rpcParams);
 
     HttpCurlClient::CurlArguments curlArgs {"POST", httpBaseUrl + "rpc/", headers, QJsonArray(), curlParams};
@@ -290,7 +290,7 @@ void test_restserver::invokeRPCInvalidRPCParams()
 {
     QStringList headers = QStringList() << "accept: application/json" << "Content-Type: application/json";
     QMap<QString, QString> rpcParams;
-    rpcParams.insert("p_session", "\"bar\"");
+    rpcParams.insert("p_session", "bar");
     QJsonObject curlParams = createCurlRpcParamJson(2, "RPC_displaySessionsInfos", rpcParams);
 
     HttpCurlClient::CurlArguments curlArgs {"POST", httpBaseUrl + "rpc/", headers, QJsonArray(), curlParams};
@@ -315,7 +315,7 @@ void test_restserver::invokeRPCWithJsonResponse()
 
     QStringList headers = QStringList() << "accept: application/json" << "Content-Type: application/json";
     QMap<QString, QString> rpcParams;
-    rpcParams.insert("p_session", "\"DbTestSession1\"");
+    rpcParams.insert("p_session", "DbTestSession1");
     QJsonObject curlParams = createCurlRpcParamJson(2, "RPC_displaySessionsInfos", rpcParams);
 
     HttpCurlClient::CurlArguments curlArgs {"POST", httpBaseUrl + "rpc/", headers, QJsonArray(), curlParams};
@@ -332,7 +332,7 @@ void test_restserver::invokeRPCWithBoolResponse()
 {
     QStringList headers = QStringList() << "accept: application/json" << "Content-Type: application/json";
     QMap<QString, QString> rpcParams;
-    rpcParams.insert("p_session", "\"DbTestSession1\"");
+    rpcParams.insert("p_session", "DbTestSession1");
     QJsonObject curlParams = createCurlRpcParamJson(2, "RPC_deleteSession", rpcParams);
 
     HttpCurlClient::CurlArguments curlArgs {"POST", httpBaseUrl + "rpc/", headers, QJsonArray(), curlParams};
@@ -341,7 +341,7 @@ void test_restserver::invokeRPCWithBoolResponse()
     QCOMPARE(responseJson.value("status"), 200);
 
     rpcParams.clear();
-    rpcParams.insert("p_session", "\"foo\"");
+    rpcParams.insert("p_session", "foo");
     curlParams = createCurlRpcParamJson(2, "RPC_deleteSession", rpcParams);
 
     curlArgs.paramsJsonObj = curlParams;
@@ -361,7 +361,7 @@ QJsonObject test_restserver::createCurlRpcParamJson(int entityId, QString rpcNam
     QJsonObject curlParam;
     curlParam.insert("EntityId", entityId);
     curlParam.insert("RpcName", rpcName);
-    curlParam.insert("parameters", rpcParamsJson);
+    curlParam.insert("Parameters", rpcParamsJson);
     return curlParam;
 }
 

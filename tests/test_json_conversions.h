@@ -15,6 +15,7 @@ private slots:
     void convertFromObject();
     void convertFromModel();
     void detectBadJson();
+    void convertFromJson();
 
 signals:
 };

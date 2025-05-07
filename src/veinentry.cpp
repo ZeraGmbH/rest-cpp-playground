@@ -88,14 +88,3 @@ std::shared_ptr<SubscriptionManager> VeinEntry::getSubscriptionManager()
 {
     return m_subscriptionManager;
 }
-
-QVariant VeinEntry::jsonToVariant(const QString &json){
-    // Wrap JSON serialized value in a dummy object do simplify parsing.
-    QString docValue = QString("{\"d\":%1}").arg(json);
-
-    // Parse the dummy object.
-    QJsonDocument doc(QJsonDocument::fromJson(docValue.toUtf8()));
-
-    // Copy the original value deserialized as a variant to the RPC actual parameter map.
-    return doc["d"].toVariant();
-}

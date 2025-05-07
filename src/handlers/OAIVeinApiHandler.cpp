@@ -216,10 +216,10 @@ void OAIVeinApiHandler::apiV1VeinRpcPost(OAIRpcRequest oai_rpc_request) {
         OAIRpcResponse res;
         QVariantMap parametersMap;
 
-        QList<OAIRpcRequest_parameters_inner> parameterList = oai_rpc_request.getParameters();
+        QList<OAIRpcRequest_Parameters_inner> parameterList = oai_rpc_request.getParameters();
 
         for(int i = 0; i < parameterList.length(); i++)
-            parametersMap.insert(parameterList.at(i).getKey(), VeinEntry::jsonToVariant(parameterList.at(i).getValue()));
+            parametersMap.insert(parameterList.at(i).getKey(), parameterList.at(i).getValue());
 
         std::shared_ptr<QVariant> result = std::make_shared<QVariant>();
 
