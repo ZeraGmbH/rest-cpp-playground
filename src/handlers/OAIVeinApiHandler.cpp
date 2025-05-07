@@ -114,7 +114,7 @@ QString OAIVeinApiHandler::variantToJsonString(QVariant input)
     return returnValue;
 }
 
-OAIRpcResponse OAIVeinApiHandler::getRPCAnswer(OAIRpcRequest rpc_request, std::shared_ptr<QVariant> result)
+OAIRpcResponse OAIVeinApiHandler::getRPCAnswer(OAIRpcRequest rpc_request, bool rpcfound, std::shared_ptr<QVariant> result)
 {
     OAIRpcResponse response;
     int entityId = rpc_request.getEntityId();
@@ -126,34 +126,38 @@ OAIRpcResponse OAIVeinApiHandler::getRPCAnswer(OAIRpcRequest rpc_request, std::s
 
     QString typeName(result->typeName());
 
-    if(typeName == "bool") {
-        if(result->toBool() == true) {
+    if(!rpcfound) {
+        response.setStatus(422);
+        response.setReturnInformation("\"RPC not reachable. Check EntityId or RpcName\"");
+    }
+    else {
+        if(typeName == "bool") {
+            if(result->toBool() == true) {
+                response.setReturnInformation(result->toString());
+                response.setStatus(200);
+            }
+            else {
+                response.setReturnInformation("\"Timeout or wrong parameters.\"");
+                response.setStatus(422);
+            }
+        }
+        else if(typeName == "int") {
             response.setReturnInformation(result->toString());
             response.setStatus(200);
         }
-        else {
-            response.setReturnInformation("\"Timeout or wrong parameters.\"");
-            response.setStatus(422);
-        }
-    }
-    else if(typeName == "int") {
-        response.setReturnInformation(result->toString());
-        response.setStatus(200);
-    }
-    else if(typeName == "QVariantMap" || typeName == "QJsonArray") {
-        QString returnValue = variantToJsonString(*result);
-        if(returnValue != "{}" && returnValue != "[]") {
-            response.setReturnInformation(returnValue);
-            response.setStatus(200);
+        else if(typeName == "QVariantMap" || typeName == "QJsonArray") {
+            QString returnValue = variantToJsonString(*result);
+            if(returnValue != "{}" && returnValue != "[]") {
+                response.setReturnInformation(returnValue);
+                response.setStatus(200);
+            }
+            else {
+                response.setReturnInformation(returnValue);
+                response.setStatus(204);
+            }
         }
         else {
-            response.setReturnInformation(returnValue);
-            response.setStatus(204);
         }
-    }
-    else {
-        response.setStatus(422);
-        response.setReturnInformation("\"RPC not reachable. Check EntityId or RpcName\"");
     }
     return response;
 }
@@ -235,7 +239,7 @@ void OAIVeinApiHandler::apiV1VeinRpcPost(OAIRpcRequest oai_rpc_request) {
         auto conn = std::make_shared<QMetaObject::Connection>();
 
         *conn = connect(taskSharedPtr.get(), &TaskTemplate::sigFinish, this, [conn, reqObj, res, taskSharedPtr, oai_rpc_request, result, this](bool ok, int taskId){
-            OAIRpcResponse res = getRPCAnswer(oai_rpc_request, result);
+            OAIRpcResponse res = getRPCAnswer(oai_rpc_request, ok, result);
             reqObj->apiV1VeinRpcPostResponse(res);
             disconnect(*conn);
         });
