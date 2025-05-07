@@ -26,6 +26,8 @@ public:
     VeinStorage::AbstractDatabase* getStorageDb();
     std::shared_ptr<SubscriptionManager> getSubscriptionManager();
 
+    static QVariant jsonToVariant(const QString &json);
+
 private:
     VeinEvent::EventHandler m_eventHandler;
     VeinNet::NetworkSystem m_netSystem;
