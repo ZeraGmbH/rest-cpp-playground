@@ -114,7 +114,7 @@ QString OAIVeinApiHandler::variantToJsonString(QVariant input)
     return returnValue;
 }
 
-OAIRpcResponse OAIVeinApiHandler::getRPCAnswer(OAIRpcRequest rpc_request, bool rpcfound, std::shared_ptr<QVariant> result)
+OAIRpcResponse OAIVeinApiHandler::getRPCAnswer(OAIRpcRequest rpc_request, bool rpcfound, std::shared_ptr<bool> rpcSuccessful, std::shared_ptr<QVariant> result)
 {
     OAIRpcResponse response;
     int entityId = rpc_request.getEntityId();
@@ -131,32 +131,32 @@ OAIRpcResponse OAIVeinApiHandler::getRPCAnswer(OAIRpcRequest rpc_request, bool r
         response.setReturnInformation("\"RPC not reachable. Check EntityId or RpcName\"");
     }
     else {
-        if(typeName == "bool") {
-            if(result->toBool() == true) {
+        if(!rpcSuccessful) {
+            response.setStatus(422);
+            response.setReturnInformation("\"RPC returned with error. Check parameters.\"");
+        }
+        else {
+            if(typeName == "bool") {
                 response.setReturnInformation(result->toString());
                 response.setStatus(200);
             }
-            else {
-                response.setReturnInformation("\"Timeout or wrong parameters.\"");
-                response.setStatus(422);
-            }
-        }
-        else if(typeName == "int") {
-            response.setReturnInformation(result->toString());
-            response.setStatus(200);
-        }
-        else if(typeName == "QVariantMap" || typeName == "QJsonArray") {
-            QString returnValue = variantToJsonString(*result);
-            if(returnValue != "{}" && returnValue != "[]") {
-                response.setReturnInformation(returnValue);
+            else if(typeName == "int") {
+                response.setReturnInformation(result->toString());
                 response.setStatus(200);
             }
-            else {
-                response.setReturnInformation(returnValue);
-                response.setStatus(204);
+            else if(typeName == "QVariantMap" || typeName == "QJsonArray") {
+                QString returnValue = variantToJsonString(*result);
+                if(returnValue != "{}" && returnValue != "[]") {
+                    response.setReturnInformation(returnValue);
+                    response.setStatus(200);
+                }
+                else {
+                    response.setReturnInformation(returnValue);
+                    response.setStatus(204);
+                }
             }
-        }
-        else {
+            else {
+            }
         }
     }
     return response;
@@ -225,6 +225,7 @@ void OAIVeinApiHandler::apiV1VeinRpcPost(OAIRpcRequest oai_rpc_request) {
         for(int i = 0; i < parameterList.length(); i++)
             parametersMap.insert(parameterList.at(i).getKey(), parameterList.at(i).getValue());
 
+        std::shared_ptr<bool> rpcSuccessful = std::make_shared<bool>();
         std::shared_ptr<QVariant> result = std::make_shared<QVariant>();
 
         std::shared_ptr<TaskTemplate> taskSharedPtr =
@@ -232,14 +233,16 @@ void OAIVeinApiHandler::apiV1VeinRpcPost(OAIRpcRequest oai_rpc_request) {
                 oai_rpc_request.getEntityId(),
                 oai_rpc_request.getRpcName(),
                 parametersMap,
+                rpcSuccessful,
                 result,
                 oai_rpc_request.is_timeout_Set() ? oai_rpc_request.getTimeout() : 1000
             );
 
         auto conn = std::make_shared<QMetaObject::Connection>();
 
-        *conn = connect(taskSharedPtr.get(), &TaskTemplate::sigFinish, this, [conn, reqObj, res, taskSharedPtr, oai_rpc_request, result, this](bool ok, int taskId){
-            OAIRpcResponse res = getRPCAnswer(oai_rpc_request, ok, result);
+        *conn = connect(taskSharedPtr.get(), &TaskTemplate::sigFinish, this,
+                        [conn, reqObj, res, taskSharedPtr, oai_rpc_request, rpcSuccessful, result, this](bool ok, int taskId){
+            OAIRpcResponse res = getRPCAnswer(oai_rpc_request, ok, rpcSuccessful, result);
             reqObj->apiV1VeinRpcPostResponse(res);
             disconnect(*conn);
         });

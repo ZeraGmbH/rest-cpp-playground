@@ -346,7 +346,8 @@ void test_restserver::invokeRPCWithBoolResponse()
 
     curlArgs.paramsJsonObj = curlParams;
     responseJson = convertResponseToJson(invokeCurlClient(curlArgs));
-    QCOMPARE(responseJson.value("status"), 422);
+    QCOMPARE(responseJson.value("ReturnInformation").toString(), "false");
+    QCOMPARE(responseJson.value("status"), 200);
 }
 
 QJsonObject test_restserver::createCurlRpcParamJson(int entityId, QString rpcName, QMap<QString, QString> rpcParams)
