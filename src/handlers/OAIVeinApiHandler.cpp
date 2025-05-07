@@ -156,6 +156,8 @@ OAIRpcResponse OAIVeinApiHandler::getRPCAnswer(OAIRpcRequest rpc_request, bool r
                 }
             }
             else {
+                response.setStatus(501);
+                response.setReturnInformation("\"RPC response type isn't implemented.\"");
             }
         }
     }
