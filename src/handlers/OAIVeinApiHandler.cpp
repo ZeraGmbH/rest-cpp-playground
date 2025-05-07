@@ -114,7 +114,7 @@ QString OAIVeinApiHandler::variantToJsonString(QVariant input)
     return returnValue;
 }
 
-OAIRpcResponse OAIVeinApiHandler::getRPCAnswer(OAIRpcRequest rpc_request, bool rpcfound, std::shared_ptr<bool> rpcSuccessful, std::shared_ptr<QVariant> result)
+OAIRpcResponse OAIVeinApiHandler::getRPCAnswer(OAIRpcRequest rpc_request, bool rpcfound, bool rpcSuccessful, QVariant result)
 {
     OAIRpcResponse response;
     int entityId = rpc_request.getEntityId();
@@ -124,7 +124,7 @@ OAIRpcResponse OAIVeinApiHandler::getRPCAnswer(OAIRpcRequest rpc_request, bool r
     response.setRpcName(rpcName);
     response.setEntityId(entityId);
 
-    QString typeName(result->typeName());
+    QString typeName(result.typeName());
 
     if(!rpcfound) {
         response.setStatus(400);
@@ -137,15 +137,15 @@ OAIRpcResponse OAIVeinApiHandler::getRPCAnswer(OAIRpcRequest rpc_request, bool r
         }
         else {
             if(typeName == "bool") {
-                response.setReturnInformation(result->toString());
+                response.setReturnInformation(result.toString());
                 response.setStatus(200);
             }
             else if(typeName == "int") {
-                response.setReturnInformation(result->toString());
+                response.setReturnInformation(result.toString());
                 response.setStatus(200);
             }
             else if(typeName == "QVariantMap" || typeName == "QJsonArray") {
-                response.setReturnInformation(variantToJsonString(*result));
+                response.setReturnInformation(variantToJsonString(result));
                 response.setStatus(200);
             }
             else {
@@ -237,7 +237,7 @@ void OAIVeinApiHandler::apiV1VeinRpcPost(OAIRpcRequest oai_rpc_request) {
 
         *conn = connect(taskSharedPtr.get(), &TaskTemplate::sigFinish, this,
                         [conn, reqObj, res, taskSharedPtr, oai_rpc_request, rpcSuccessful, result, this](bool ok, int taskId){
-            OAIRpcResponse res = getRPCAnswer(oai_rpc_request, ok, rpcSuccessful, result);
+            OAIRpcResponse res = getRPCAnswer(oai_rpc_request, ok, *rpcSuccessful, *result);
             reqObj->apiV1VeinRpcPostResponse(res);
             disconnect(*conn);
         });
