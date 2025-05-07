@@ -145,15 +145,8 @@ OAIRpcResponse OAIVeinApiHandler::getRPCAnswer(OAIRpcRequest rpc_request, bool r
                 response.setStatus(200);
             }
             else if(typeName == "QVariantMap" || typeName == "QJsonArray") {
-                QString returnValue = variantToJsonString(*result);
-                if(returnValue != "{}" && returnValue != "[]") {
-                    response.setReturnInformation(returnValue);
-                    response.setStatus(200);
-                }
-                else {
-                    response.setReturnInformation(returnValue);
-                    response.setStatus(204);
-                }
+                response.setReturnInformation(variantToJsonString(*result));
+                response.setStatus(200);
             }
             else {
                 response.setStatus(501);
