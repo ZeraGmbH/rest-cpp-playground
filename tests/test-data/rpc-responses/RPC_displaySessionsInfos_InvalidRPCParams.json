@@ -1,6 +1,6 @@
 {
     "EntityId": 2,
     "RPC_Name": "RPC_displaySessionsInfos",
-    "ReturnInformation": "\"RPC returned with error. Check parameters.\"",
+    "ReturnInformation": "\"Select an existing session\"",
     "status": 422
 }

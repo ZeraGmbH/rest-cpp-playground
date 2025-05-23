@@ -114,7 +114,7 @@ QString OAIVeinApiHandler::variantToJsonString(QVariant input)
     return returnValue;
 }
 
-OAIRpcResponse OAIVeinApiHandler::getRPCAnswer(OAIRpcRequest rpc_request, bool rpcfound, bool rpcSuccessful, QVariant result)
+OAIRpcResponse OAIVeinApiHandler::getRPCAnswer(OAIRpcRequest rpc_request, bool rpcfound, bool rpcSuccessful, QVariant result, QString errorMsg)
 {
     OAIRpcResponse response;
     int entityId = rpc_request.getEntityId();
@@ -133,7 +133,7 @@ OAIRpcResponse OAIVeinApiHandler::getRPCAnswer(OAIRpcRequest rpc_request, bool r
     else {
         if(!rpcSuccessful) {
             response.setStatus(422);
-            response.setReturnInformation("\"RPC returned with error. Check parameters.\"");
+            response.setReturnInformation("\"" + errorMsg + "\"");
         }
         else {
             if(typeName == "bool") {
@@ -239,7 +239,7 @@ void OAIVeinApiHandler::apiV1VeinRpcPost(OAIRpcRequest oai_rpc_request) {
 
         *conn = connect(taskSharedPtr.get(), &TaskTemplate::sigFinish, this,
                         [conn, reqObj, res, taskSharedPtr, oai_rpc_request, rpcSuccessful, result, errorMsg, this](bool ok, int taskId){
-            OAIRpcResponse res = getRPCAnswer(oai_rpc_request, ok, *rpcSuccessful, *result);
+            OAIRpcResponse res = getRPCAnswer(oai_rpc_request, ok, *rpcSuccessful, *result, *errorMsg);
             reqObj->apiV1VeinRpcPostResponse(res);
             disconnect(*conn);
         });
