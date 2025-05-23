@@ -144,7 +144,7 @@ OAIRpcResponse OAIVeinApiHandler::getRPCAnswer(OAIRpcRequest rpc_request, bool r
                 response.setReturnInformation(result.toString());
                 response.setStatus(200);
             }
-            else if(typeName == "QVariantMap" || typeName == "QJsonArray") {
+            else if(typeName == "QVariantMap" || typeName == "QJsonArray" || typeName == "QVariantList") {
                 response.setReturnInformation(variantToJsonString(result));
                 response.setStatus(200);
             }
