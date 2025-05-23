@@ -65,10 +65,10 @@ TaskTemplatePtr VeinEntry::setToVein(int entityId, QString componentName, QVaria
 }
 
 std::shared_ptr<TaskTemplate> VeinEntry::rpcToVein(int entityId, QString rpc_name, QVariantMap parameters, std::shared_ptr<bool> rpcSuccessful,
-                                                   std::shared_ptr<QVariant> result, int timeout)
+                                                   std::shared_ptr<QVariant> result, std::shared_ptr<QString> errorMsg, int timeout)
 {
     if(m_storage.getDb()->hasEntity(entityId)) {
-        TaskTemplatePtr task = TaskClientRPCInvoker::create(entityId, rpc_name, parameters, rpcSuccessful, result, m_cmdEventHandlerSystem, timeout, []() {
+        TaskTemplatePtr task = TaskClientRPCInvoker::create(entityId, rpc_name, parameters, rpcSuccessful, result, errorMsg, m_cmdEventHandlerSystem, timeout, []() {
             qWarning("Task failed");
         });
         std::shared_ptr<TaskTemplate> taskSharedPtr = std::move(task);
@@ -77,7 +77,7 @@ std::shared_ptr<TaskTemplate> VeinEntry::rpcToVein(int entityId, QString rpc_nam
         return taskSharedPtr;
     }
     else
-        return TaskSimpleVeinRPCInvoker::create(entityId, rpc_name, parameters, rpcSuccessful, result, m_cmdEventHandlerSystem, timeout);
+        return TaskSimpleVeinRPCInvoker::create(entityId, rpc_name, parameters, rpcSuccessful, result, errorMsg, m_cmdEventHandlerSystem, timeout);
 }
 
 VeinStorage::AbstractDatabase *VeinEntry::getStorageDb()

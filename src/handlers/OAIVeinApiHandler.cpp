@@ -222,6 +222,7 @@ void OAIVeinApiHandler::apiV1VeinRpcPost(OAIRpcRequest oai_rpc_request) {
 
         std::shared_ptr<bool> rpcSuccessful = std::make_shared<bool>();
         std::shared_ptr<QVariant> result = std::make_shared<QVariant>();
+        std::shared_ptr<QString> errorMsg = std::make_shared<QString>();
 
         std::shared_ptr<TaskTemplate> taskSharedPtr =
             m_veinEntry->rpcToVein(
@@ -230,13 +231,14 @@ void OAIVeinApiHandler::apiV1VeinRpcPost(OAIRpcRequest oai_rpc_request) {
                 parametersMap,
                 rpcSuccessful,
                 result,
+                errorMsg,
                 oai_rpc_request.is_timeout_Set() ? oai_rpc_request.getTimeout() : 1000
             );
 
         auto conn = std::make_shared<QMetaObject::Connection>();
 
         *conn = connect(taskSharedPtr.get(), &TaskTemplate::sigFinish, this,
-                        [conn, reqObj, res, taskSharedPtr, oai_rpc_request, rpcSuccessful, result, this](bool ok, int taskId){
+                        [conn, reqObj, res, taskSharedPtr, oai_rpc_request, rpcSuccessful, result, errorMsg, this](bool ok, int taskId){
             OAIRpcResponse res = getRPCAnswer(oai_rpc_request, ok, *rpcSuccessful, *result);
             reqObj->apiV1VeinRpcPostResponse(res);
             disconnect(*conn);
