@@ -346,7 +346,7 @@ void test_restserver::invokeRPCWithBoolResponse()
 
     curlArgs.paramsJsonObj = curlParams;
     responseJson = convertResponseToJson(invokeCurlClient(curlArgs));
-    QCOMPARE(responseJson.value("ReturnInformation").toString(), "\"RPC returned with error. Check parameters.\"");
+    QCOMPARE(responseJson.value("ReturnInformation").toString(), "\"Select an existing session\"");
     QCOMPARE(responseJson.value("status"), 422);
 }
 
