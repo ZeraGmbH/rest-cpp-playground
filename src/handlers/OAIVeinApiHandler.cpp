@@ -136,11 +136,7 @@ OAIRpcResponse OAIVeinApiHandler::getRPCAnswer(OAIRpcRequest rpc_request, bool r
             response.setReturnInformation("\"" + errorMsg + "\"");
         }
         else {
-            if(typeName == "bool") {
-                response.setReturnInformation(result.toString());
-                response.setStatus(200);
-            }
-            else if(typeName == "int") {
+            if(typeName == "bool" || typeName == "int" || typeName == "QByteArray") {
                 response.setReturnInformation(result.toString());
                 response.setStatus(200);
             }
