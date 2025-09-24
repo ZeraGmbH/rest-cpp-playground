@@ -5,6 +5,7 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <qjsonarray.h>
+#include <QDebug>
 
 std::shared_ptr<VeinEntry> VeinEntry::create(VeinTcp::AbstractTcpNetworkFactoryPtr tcpNetworkFactory)
 {
@@ -67,6 +68,7 @@ TaskTemplatePtr VeinEntry::setToVein(int entityId, QString componentName, QVaria
 std::shared_ptr<TaskTemplate> VeinEntry::rpcToVein(int entityId, QString rpc_name, QVariantMap parameters, std::shared_ptr<bool> rpcSuccessful,
                                                    std::shared_ptr<QVariant> result, std::shared_ptr<QString> errorMsg, int timeout)
 {
+    qWarning("RPC::%s", qPrintable(rpc_name));
     if(m_storage.getDb()->hasEntity(entityId)) {
         TaskTemplatePtr task = TaskClientRPCInvoker::create(entityId, rpc_name, parameters, rpcSuccessful, result, errorMsg, m_cmdEventHandlerSystem, timeout, []() {
             qWarning("Task failed");

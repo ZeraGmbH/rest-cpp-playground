@@ -150,6 +150,11 @@ OAIRpcResponse OAIVeinApiHandler::getRPCAnswer(OAIRpcRequest rpc_request, bool r
             }
         }
     }
+
+    if(rpcName == "RPC_createVectorDiagram") {
+        qWarning() << "RPC_createVectorDiagram: " << "response:: " << response.getReturnInformation() << "status::" << response.getStatus();
+    }
+
     return response;
 }
 
@@ -208,13 +213,22 @@ void OAIVeinApiHandler::apiV1VeinRpcPost(OAIRpcRequest oai_rpc_request) {
     auto reqObj = qobject_cast<OAIVeinApiRequest*>(sender());
     if( reqObj != nullptr )
     {
+
+        qWarning() << "Request received::"
+                << "entity: " << oai_rpc_request.getEntityId()
+                << "RPC: " << oai_rpc_request.getRpcName();
+
         OAIRpcResponse res;
         QVariantMap parametersMap;
 
         QList<OAIRpcRequest_Parameters_inner> parameterList = oai_rpc_request.getParameters();
 
-        for(int i = 0; i < parameterList.length(); i++)
+        qWarning("Params::");
+        for(int i = 0; i < parameterList.length(); i++) {
             parametersMap.insert(parameterList.at(i).getKey(), parameterList.at(i).getValue());
+            qWarning() << "key: " << parameterList.at(i).getKey()
+                    << "value: " << parameterList.at(i).getValue();
+        }
 
         std::shared_ptr<bool> rpcSuccessful = std::make_shared<bool>();
         std::shared_ptr<QVariant> result = std::make_shared<QVariant>();
