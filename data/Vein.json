@@ -60,6 +60,34 @@
         }
       }
     },
+    "/logs/": {
+      "get":{
+        "tags": [
+          "zenuxLogs"
+        ],
+        "summary": "Gets zenuxLogs",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "If the information could be successfully retrieved.",
+            "content": {
+              "application/zip": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "If log archive not found."
+          },
+          "500": {
+            "description": "If an unexpected error occured."
+          }
+        }
+      }
+    },
     "/api/v1/Vein/": {
       "get": {
         "tags": [

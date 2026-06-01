@@ -25,6 +25,7 @@
 #include <qhttpengine/qobjecthandler.h>
 
 #include "OAIVeinApiHandler.h"
+#include "OAIZenuxLogsApiRequest.h"
 #include "veinentry.h"
 
 
@@ -72,6 +73,7 @@ private:
 
 
     QSharedPointer<OAIVeinApiHandler> mOAIVeinApiHandler;
+    QSharedPointer<OAIZenuxLogsApiHandler> mOAIZenuxLogsApiHandler;
     VeinEntryPtr m_veinEntry;
 protected:
     // override this method to provide custom class derived from ApiHandler classes

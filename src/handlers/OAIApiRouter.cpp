@@ -31,6 +31,7 @@ OAIApiRouter::~OAIApiRouter(){
 
 void OAIApiRouter::createApiHandlers() {
     mOAIVeinApiHandler = QSharedPointer<OAIVeinApiHandler>::create(m_veinEntry);
+    mOAIZenuxLogsApiHandler = QSharedPointer<OAIZenuxLogsApiHandler>::create();
 }
 
 
@@ -55,6 +56,10 @@ void OAIApiRouter::setUpRoutes() {
     Routes.insert(QString("%1 %2").arg("POST").arg("/api/v1/Vein/rpc/").toLower(), [this](QHttpEngine::Socket *socket) {
         auto reqObj = new OAIVeinApiRequest(socket, mOAIVeinApiHandler);
         reqObj->apiV1VeinRpcPostRequest();
+    });
+    Routes.insert(QString("%1 %2").arg("GET").arg("/logs/").toLower(), [this](QHttpEngine::Socket *socket) {
+        auto reqObj = new OAIZenuxLogsApiRequest(socket, mOAIZenuxLogsApiHandler);
+        reqObj->logsGetRequest();
     });
 }
 
